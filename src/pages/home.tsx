@@ -1,464 +1,170 @@
+import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { MainLayout } from "@/layouts/main-layout";
-import { useEffect, useState } from "react";
+
+const ELEMENTS = [
+  { icon: "🜂", label: "FIRE", color: "#FF5A1E" },
+  { icon: "🜄", label: "WATER", color: "#1CA8FF" },
+  { icon: "🜁", label: "AIR", color: "#B8FF1C" },
+  { icon: "🜃", label: "EARTH", color: "#A87C1C" },
+  { icon: "✦", label: "AETHER", color: "#9B59FF" },
+  { icon: "◈", label: "VOID", color: "#FF1CF7" },
+];
 
 export default function Home() {
   const [particles, setParticles] = useState<any[]>([]);
 
   useEffect(() => {
-    setParticles(
-      Array.from({ length: 40 }, (_, i) => ({
-        id: i,
-        left: `${Math.random() * 100}%`,
-        delay: `${Math.random() * 8}s`,
-        duration: `${Math.random() * 10 + 6}s`,
-        size: `${Math.random() * 2 + 1}px`,
-        opacity: Math.random() * 0.3 + 0.05,
-      }))
-    );
+    setParticles(Array.from({ length: 35 }, (_, i) => ({
+      id: i,
+      left: `${Math.random() * 100}%`,
+      delay: `${Math.random() * 10}s`,
+      duration: `${Math.random() * 12 + 8}s`,
+      size: `${Math.random() * 2 + 1}px`,
+      opacity: Math.random() * 0.25 + 0.05,
+    })));
   }, []);
 
   return (
     <MainLayout>
-      <style>{css}</style>
-
-      {/* Particles */}
       {particles.map((p) => (
         <div
           key={p.id}
-          style={{
-            position: "fixed",
-            left: p.left,
-            bottom: "-10px",
-            width: p.size,
-            height: p.size,
-            borderRadius: "50%",
-            background: "#fff",
-            opacity: p.opacity,
-            animation: `floatUp ${p.duration} ${p.delay} linear infinite`,
-            pointerEvents: "none",
-            zIndex: 0,
-          }}
+          className="animate-float fixed rounded-full bg-white pointer-events-none z-0"
+          style={{ left: p.left, bottom: "-4px", width: p.size, height: p.size, opacity: p.opacity, animationDuration: p.duration, animationDelay: p.delay }}
         />
       ))}
 
-      <div style={s.page}>
-        {/* Hero */}
-        <section style={s.hero}>
-          <div style={s.portalWrap}>
-            <div style={s.ring1} />
-            <div style={s.ring2} />
-            <div style={s.ring3} />
-            <div style={s.portalCore}>⬡</div>
+      {/* HERO */}
+      <section className="relative min-h-[calc(100vh-64px)] flex flex-col items-center justify-center text-center px-6 border-b border-white/5 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-orange-500/5 via-transparent to-transparent pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col items-center gap-10 max-w-3xl animate-fade-in-up">
+          {/* Portal */}
+          <div className="relative w-40 h-40 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full border border-orange-500/20 animate-spin-slow" />
+            <div className="absolute inset-5 rounded-full border border-pink-500/20 animate-spin-reverse" />
+            <div className="absolute inset-10 rounded-full border border-blue-500/20 animate-spin-fast" />
+            <span className="relative z-10 text-6xl glow-orange animate-pulse-glow">⬡</span>
           </div>
 
-          <div style={s.heroText}>
-            <div style={s.eyebrow}>NFT WHITELIST PORTAL · SEASON I</div>
-            <h1 style={s.h1}>
-              ENTER THE<br />
-              <span style={s.h1Accent}>EARNITY</span><br />
-              REALM
+          <div>
+            <p className="text-xs tracking-[0.5em] text-orange-400/70 mb-5">NFT WHITELIST PORTAL · SEASON I</p>
+            <h1 className="font-serif text-5xl md:text-7xl font-black leading-none mb-6">
+              <span className="text-white">ENTER THE </span>
+              <span className="text-gradient">EARNITY</span>
+              <br />
+              <span className="text-white"> REALM</span>
             </h1>
-            <p style={s.heroSub}>
+            <p className="text-sm text-zinc-500 leading-relaxed max-w-md mx-auto">
               Complete elemental tasks. Secure your whitelist spot.<br />
               Earn GTD status. Be among the first to mint.
             </p>
-
-            <div style={s.heroCtas}>
-              <Link href="/whitelist">
-                <button style={s.ctaPrimary}>
-                  CLAIM WHITELIST →
-                </button>
-              </Link>
-              <Link href="/collab">
-                <button style={s.ctaSecondary}>
-                  PROJECT COLLAB
-                </button>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Stats bar */}
-        <section style={s.statsBar}>
-          {[
-            { label: "WL SPOTS", value: "888" },
-            { label: "GTD SPOTS", value: "111" },
-            { label: "TASKS", value: "6" },
-            { label: "CHAIN", value: "BASE" },
-          ].map((stat) => (
-            <div key={stat.label} style={s.statItem}>
-              <div style={s.statValue}>{stat.value}</div>
-              <div style={s.statLabel}>{stat.label}</div>
-            </div>
-          ))}
-        </section>
-
-        {/* How it works */}
-        <section style={s.section}>
-          <div style={s.sectionLabel}>HOW IT WORKS</div>
-          <h2 style={s.sectionTitle}>THREE STEPS TO MINT</h2>
-
-          <div style={s.steps}>
-            {[
-              {
-                num: "01",
-                title: "SIGN IN",
-                desc: "Connect with your X or Discord account to begin your journey.",
-                color: "#FF4D1C",
-              },
-              {
-                num: "02",
-                title: "COMPLETE TASKS",
-                desc: "Unlock 6 elemental tasks sequentially. Each task brings you closer to GTD status.",
-                color: "#FF1CF7",
-              },
-              {
-                num: "03",
-                title: "SECURE SPOT",
-                desc: "Submit your wallet. WL at 3/6, GTD at 6/6. Mint when the portal opens.",
-                color: "#1CA8FF",
-              },
-            ].map((step) => (
-              <div key={step.num} style={s.stepCard}>
-                <div style={{ ...s.stepNum, color: step.color }}>{step.num}</div>
-                <div style={s.stepTitle}>{step.title}</div>
-                <div style={s.stepDesc}>{step.desc}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* Elements preview */}
-        <section style={s.section}>
-          <div style={s.sectionLabel}>ELEMENTAL TASKS</div>
-          <h2 style={s.sectionTitle}>AWAKEN ALL 6 ELEMENTS</h2>
-
-          <div style={s.elements}>
-            {[
-              { icon: "🜂", label: "FIRE", color: "#FF4D1C" },
-              { icon: "🜄", label: "WATER", color: "#1CA8FF" },
-              { icon: "🜁", label: "AIR", color: "#B8FF1C" },
-              { icon: "🜃", label: "EARTH", color: "#A87C1C" },
-              { icon: "✦", label: "AETHER", color: "#9B59FF" },
-              { icon: "◈", label: "VOID", color: "#FF1CF7" },
-            ].map((el) => (
-              <div key={el.label} style={s.elementChip}>
-                <span style={{ color: el.color, fontSize: 20, filter: `drop-shadow(0 0 8px ${el.color})` }}>
-                  {el.icon}
-                </span>
-                <span style={{ fontSize: 10, color: "#444", letterSpacing: 2 }}>{el.label}</span>
-              </div>
-            ))}
           </div>
 
-          <div style={{ textAlign: "center", marginTop: 40 }}>
+          <div className="flex flex-wrap gap-4 justify-center">
             <Link href="/whitelist">
-              <button style={s.ctaPrimary}>BEGIN YOUR QUEST →</button>
+              <button className="px-8 py-4 bg-orange-500 hover:bg-orange-400 text-white font-bold text-xs tracking-[0.3em] rounded-sm transition-all cursor-pointer border-none shadow-lg shadow-orange-500/20">
+                CLAIM WHITELIST →
+              </button>
+            </Link>
+            <Link href="/collab">
+              <button className="px-8 py-4 bg-transparent border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-zinc-200 font-bold text-xs tracking-[0.3em] rounded-sm transition-all cursor-pointer">
+                PROJECT COLLAB
+              </button>
             </Link>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Project collab banner */}
-        <section style={s.collabBanner}>
-          <div style={s.collabLeft}>
-            <div style={s.sectionLabel}>FOR PROJECTS</div>
-            <h2 style={{ ...s.sectionTitle, marginBottom: 12 }}>COLLAB WITH EARNITY</h2>
-            <p style={s.collabDesc}>
-              Want to allocate WL spots to Earnity holders?
-              Apply for a collab and reach our growing community.
+      {/* STATS */}
+      <section className="border-b border-white/5 bg-zinc-950/50">
+        <div className="max-w-4xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          {[
+            { value: "888", label: "WL SPOTS" },
+            { value: "111", label: "GTD SPOTS" },
+            { value: "6", label: "ELEMENTS" },
+            { value: "BASE", label: "CHAIN" },
+          ].map((s) => (
+            <div key={s.label}>
+              <div className="font-serif text-3xl font-black text-white tracking-wider mb-1">{s.value}</div>
+              <div className="text-[10px] tracking-[0.3em] text-zinc-600">{s.label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section className="border-b border-white/5 py-24 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-[10px] tracking-[0.5em] text-orange-400/70 mb-4">HOW IT WORKS</p>
+          <h2 className="font-serif text-3xl md:text-4xl font-black text-white tracking-widest mb-16">THREE STEPS TO MINT</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[
+              { num: "01", title: "SIGN IN", desc: "Connect with your X or Discord account to begin your journey.", color: "#FF5A1E" },
+              { num: "02", title: "COMPLETE TASKS", desc: "Unlock 6 elemental tasks sequentially. Each awakened element brings you closer to GTD status.", color: "#FF1CF7" },
+              { num: "03", title: "SECURE SPOT", desc: "Submit your wallet. WL at 3/6 tasks, GTD guaranteed at 6/6. Mint when the portal opens.", color: "#1CA8FF" },
+            ].map((step) => (
+              <div key={step.num} className="bg-zinc-950 border border-white/5 rounded-sm p-8 text-left">
+                <div className="font-serif text-4xl font-black mb-4" style={{ color: step.color }}>{step.num}</div>
+                <div className="text-xs font-bold tracking-[0.2em] text-zinc-300 mb-3">{step.title}</div>
+                <div className="text-xs text-zinc-600 leading-relaxed">{step.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ELEMENTS */}
+      <section className="border-b border-white/5 py-24 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="text-[10px] tracking-[0.5em] text-orange-400/70 mb-4">ELEMENTAL TASKS</p>
+          <h2 className="font-serif text-3xl md:text-4xl font-black text-white tracking-widest mb-16">AWAKEN ALL 6 ELEMENTS</h2>
+          <div className="flex flex-wrap justify-center gap-4 mb-12">
+            {ELEMENTS.map((el) => (
+              <div key={el.label} className="flex flex-col items-center gap-3 bg-zinc-950 border border-white/5 rounded-sm p-6 w-24">
+                <span className="text-2xl" style={{ color: el.color, filter: `drop-shadow(0 0 8px ${el.color})` }}>{el.icon}</span>
+                <span className="text-[9px] tracking-[0.2em] text-zinc-600">{el.label}</span>
+              </div>
+            ))}
+          </div>
+          <Link href="/whitelist">
+            <button className="px-8 py-4 bg-orange-500 hover:bg-orange-400 text-white font-bold text-xs tracking-[0.3em] rounded-sm transition-all cursor-pointer border-none">
+              BEGIN YOUR QUEST →
+            </button>
+          </Link>
+        </div>
+      </section>
+
+      {/* COLLAB BANNER */}
+      <section className="border-b border-white/5 py-20 px-6 bg-zinc-950/30">
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10">
+          <div className="max-w-lg">
+            <p className="text-[10px] tracking-[0.5em] text-orange-400/70 mb-4">FOR PROJECTS</p>
+            <h2 className="font-serif text-2xl md:text-3xl font-black text-white tracking-widest mb-4">COLLAB WITH EARNITY</h2>
+            <p className="text-xs text-zinc-500 leading-relaxed">
+              Want to offer WL spots to Earnity holders? Apply for a collab and reach our growing community of Web3 natives.
             </p>
           </div>
           <Link href="/collab">
-            <button style={s.ctaSecondary}>APPLY FOR COLLAB →</button>
+            <button className="whitespace-nowrap px-8 py-4 bg-transparent border border-zinc-700 hover:border-orange-500/50 text-zinc-400 hover:text-orange-400 font-bold text-xs tracking-[0.3em] rounded-sm transition-all cursor-pointer">
+              APPLY FOR COLLAB →
+            </button>
           </Link>
-        </section>
+        </div>
+      </section>
 
-        {/* Footer */}
-        <footer style={s.footer}>
-          <span style={s.footerLogo}>⬡ EARNITY</span>
-          <span style={s.footerLinks}>
-            <a href="https://x.com/earnity_" target="_blank" rel="noreferrer" style={s.footerLink}>
-              𝕏 TWITTER
-            </a>
-            <a href="https://earnity.fun" target="_blank" rel="noreferrer" style={s.footerLink}>
-              EARNITY.FUN
-            </a>
-          </span>
-          <span style={s.footerCopy}>© 2025 EARNITY. ALL RIGHTS RESERVED.</span>
-        </footer>
-      </div>
+      {/* FOOTER */}
+      <footer className="py-10 px-6">
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <span className="font-serif font-black tracking-[0.3em] text-zinc-700">⬡ EARNITY</span>
+          <div className="flex gap-8">
+            <a href="https://x.com/earnity_" target="_blank" rel="noreferrer" className="text-[10px] tracking-[0.2em] text-zinc-700 hover:text-zinc-400 no-underline transition-colors">𝕏 TWITTER</a>
+            <a href="https://earnity.fun" target="_blank" rel="noreferrer" className="text-[10px] tracking-[0.2em] text-zinc-700 hover:text-zinc-400 no-underline transition-colors">EARNITY.FUN</a>
+          </div>
+          <span className="text-[9px] tracking-widest text-zinc-800">© 2025 EARNITY</span>
+        </div>
+      </footer>
     </MainLayout>
   );
 }
-
-const s: Record<string, React.CSSProperties> = {
-  page: {
-    position: "relative",
-    zIndex: 1,
-    fontFamily: "'Courier New', monospace",
-  },
-  hero: {
-    minHeight: "calc(100vh - 64px)",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "80px 24px",
-    textAlign: "center",
-    position: "relative",
-    borderBottom: "1px solid #111",
-    gap: 48,
-  },
-  portalWrap: {
-    position: "relative",
-    width: 160,
-    height: 160,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  ring1: {
-    position: "absolute",
-    inset: 0,
-    borderRadius: "50%",
-    border: "1px solid #FF4D1C33",
-    animation: "spin 10s linear infinite",
-  },
-  ring2: {
-    position: "absolute",
-    inset: 20,
-    borderRadius: "50%",
-    border: "1px solid #FF1CF733",
-    animation: "spin 7s linear infinite reverse",
-  },
-  ring3: {
-    position: "absolute",
-    inset: 40,
-    borderRadius: "50%",
-    border: "1px solid #1CA8FF33",
-    animation: "spin 4s linear infinite",
-  },
-  portalCore: {
-    fontSize: 56,
-    color: "#FF4D1C",
-    filter: "drop-shadow(0 0 30px rgba(255,77,28,0.8))",
-    animation: "pulse 3s ease-in-out infinite",
-    position: "relative",
-    zIndex: 1,
-  },
-  heroText: {
-    maxWidth: 600,
-  },
-  eyebrow: {
-    fontSize: 10,
-    letterSpacing: 4,
-    color: "#444",
-    marginBottom: 20,
-  },
-  h1: {
-    fontSize: "clamp(42px, 8vw, 72px)",
-    fontWeight: 900,
-    letterSpacing: 6,
-    lineHeight: 1.1,
-    margin: "0 0 24px",
-    color: "#fff",
-  },
-  h1Accent: {
-    background: "linear-gradient(135deg, #FF4D1C, #FF1CF7)",
-    WebkitBackgroundClip: "text",
-    WebkitTextFillColor: "transparent",
-  },
-  heroSub: {
-    fontSize: 13,
-    color: "#555",
-    lineHeight: 1.8,
-    marginBottom: 40,
-    letterSpacing: 0.5,
-  },
-  heroCtas: {
-    display: "flex",
-    gap: 12,
-    justifyContent: "center",
-    flexWrap: "wrap",
-  },
-  ctaPrimary: {
-    background: "#FF4D1C",
-    border: "none",
-    color: "#fff",
-    padding: "14px 32px",
-    fontFamily: "'Courier New', monospace",
-    fontWeight: 900,
-    fontSize: 12,
-    letterSpacing: 3,
-    cursor: "pointer",
-    borderRadius: 2,
-    transition: "opacity 0.2s",
-  },
-  ctaSecondary: {
-    background: "transparent",
-    border: "1px solid #333",
-    color: "#888",
-    padding: "14px 32px",
-    fontFamily: "'Courier New', monospace",
-    fontWeight: 700,
-    fontSize: 12,
-    letterSpacing: 3,
-    cursor: "pointer",
-    borderRadius: 2,
-    transition: "all 0.2s",
-  },
-  statsBar: {
-    display: "flex",
-    justifyContent: "space-around",
-    padding: "32px 24px",
-    borderBottom: "1px solid #111",
-    background: "#080808",
-    flexWrap: "wrap",
-    gap: 24,
-  },
-  statItem: {
-    textAlign: "center",
-  },
-  statValue: {
-    fontSize: 32,
-    fontWeight: 900,
-    color: "#fff",
-    letterSpacing: 2,
-  },
-  statLabel: {
-    fontSize: 10,
-    color: "#444",
-    letterSpacing: 3,
-    marginTop: 4,
-  },
-  section: {
-    maxWidth: 800,
-    margin: "0 auto",
-    padding: "80px 24px",
-    borderBottom: "1px solid #111",
-    textAlign: "center",
-  },
-  sectionLabel: {
-    fontSize: 10,
-    letterSpacing: 4,
-    color: "#FF4D1C",
-    marginBottom: 12,
-  },
-  sectionTitle: {
-    fontSize: "clamp(24px, 4vw, 36px)",
-    fontWeight: 900,
-    letterSpacing: 4,
-    color: "#fff",
-    marginBottom: 48,
-  },
-  steps: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-    gap: 24,
-  },
-  stepCard: {
-    background: "#0a0a0a",
-    border: "1px solid #1a1a1a",
-    borderRadius: 4,
-    padding: "32px 24px",
-    textAlign: "left",
-  },
-  stepNum: {
-    fontSize: 36,
-    fontWeight: 900,
-    marginBottom: 12,
-    letterSpacing: 2,
-  },
-  stepTitle: {
-    fontSize: 13,
-    fontWeight: 700,
-    letterSpacing: 3,
-    color: "#ccc",
-    marginBottom: 10,
-  },
-  stepDesc: {
-    fontSize: 12,
-    color: "#444",
-    lineHeight: 1.7,
-  },
-  elements: {
-    display: "flex",
-    justifyContent: "center",
-    flexWrap: "wrap",
-    gap: 16,
-  },
-  elementChip: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    gap: 8,
-    background: "#0a0a0a",
-    border: "1px solid #1a1a1a",
-    borderRadius: 4,
-    padding: "20px 24px",
-    width: 80,
-  },
-  collabBanner: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "64px 80px",
-    borderBottom: "1px solid #111",
-    background: "#080808",
-    gap: 32,
-    flexWrap: "wrap",
-  },
-  collabLeft: {
-    maxWidth: 480,
-  },
-  collabDesc: {
-    fontSize: 13,
-    color: "#555",
-    lineHeight: 1.8,
-  },
-  footer: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "32px 80px",
-    flexWrap: "wrap",
-    gap: 16,
-  },
-  footerLogo: {
-    fontSize: 14,
-    fontWeight: 900,
-    letterSpacing: 4,
-    color: "#333",
-  },
-  footerLinks: {
-    display: "flex",
-    gap: 24,
-  },
-  footerLink: {
-    fontSize: 11,
-    color: "#333",
-    textDecoration: "none",
-    letterSpacing: 2,
-  },
-  footerCopy: {
-    fontSize: 10,
-    color: "#222",
-    letterSpacing: 1,
-  },
-};
-
-const css = `
-  @keyframes floatUp {
-    from { transform: translateY(0); opacity: 0.2; }
-    to { transform: translateY(-100vh); opacity: 0; }
-  }
-  @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-  @keyframes pulse {
-    0%, 100% { filter: drop-shadow(0 0 30px rgba(255,77,28,0.8)); }
-    50% { filter: drop-shadow(0 0 50px rgba(255,77,28,1)); }
-  }
-`;
