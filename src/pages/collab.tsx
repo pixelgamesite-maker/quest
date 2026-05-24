@@ -2,7 +2,7 @@ import { useState } from "react";
 import { MainLayout } from "@/layouts/main-layout";
 import { useToast } from "@/hooks/use-toast";
 
-type FormData = {
+type Form = {
   projectName: string;
   xHandle: string;
   discord: string;
@@ -13,67 +13,55 @@ type FormData = {
   contactEmail: string;
 };
 
-const INITIAL: FormData = {
-  projectName: "",
-  xHandle: "",
-  discord: "",
-  website: "",
-  spotsRequested: "",
-  chain: "",
-  description: "",
-  contactEmail: "",
-};
+const INIT: Form = { projectName: "", xHandle: "", discord: "", website: "", spotsRequested: "", chain: "", description: "", contactEmail: "" };
 
 export default function Collab() {
-  const [form, setForm] = useState<FormData>(INITIAL);
+  const [form, setForm] = useState<Form>(INIT);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const set = (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+  const set = (key: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  const isValid = form.projectName && form.xHandle && form.spotsRequested && form.description;
+  const valid = form.projectName && form.xHandle && form.spotsRequested && form.description;
 
   const handleSubmit = async () => {
-    if (!isValid) return;
+    if (!valid) return;
     setLoading(true);
-    // Wire to Supabase/Neon later — for now just simulate
     await new Promise((r) => setTimeout(r, 1200));
     setLoading(false);
     setSubmitted(true);
-    toast({ title: "Application submitted!", description: "We'll review and reach out via Discord or X." });
+    toast({ title: "Application submitted!", description: "We'll review and reach out within 48h." });
   };
+
+  const inputClass = "w-full bg-black border border-zinc-800 text-white px-4 py-3 text-xs font-mono rounded-sm transition-all";
+  const labelClass = "text-[9px] tracking-[0.3em] text-zinc-600 mb-2 block";
 
   if (submitted) {
     return (
       <MainLayout>
-        <div style={s.page}>
-          <div style={s.successWrap}>
-            <div style={s.successIcon}>✦</div>
-            <div style={s.successTitle}>APPLICATION RECEIVED</div>
-            <div style={s.successSub}>
-              We'll review <strong style={{ color: "#fff" }}>{form.projectName}</strong>'s application and reach out within 48 hours via X or Discord.
+        <div className="max-w-lg mx-auto px-6 py-24 text-center">
+          <div className="bg-zinc-950 border border-green-400/20 rounded-sm p-12">
+            <div className="text-4xl text-green-400 mb-6" style={{ filter: "drop-shadow(0 0 16px #B8FF1C)" }}>✦</div>
+            <div className="font-serif text-xl font-black tracking-[0.3em] text-white mb-4">APPLICATION RECEIVED</div>
+            <p className="text-xs text-zinc-500 leading-relaxed mb-8">
+              We'll review <strong className="text-white">{form.projectName}</strong>'s application and reach out within 48 hours via X or Discord.
+            </p>
+            <div className="bg-black border border-white/5 rounded-sm p-5 text-left mb-8 space-y-3">
+              {[
+                { label: "PROJECT", value: form.projectName },
+                { label: "X HANDLE", value: form.xHandle },
+                { label: "SPOTS", value: form.spotsRequested },
+                { label: "CHAIN", value: form.chain || "Not specified" },
+              ].map((r) => (
+                <div key={r.label} className="flex justify-between items-center border-b border-white/5 pb-3 last:border-0 last:pb-0">
+                  <span className="text-[9px] tracking-[0.3em] text-zinc-700">{r.label}</span>
+                  <span className="text-xs text-zinc-400">{r.value}</span>
+                </div>
+              ))}
             </div>
-            <div style={s.successDetails}>
-              <div style={s.detailRow}>
-                <span style={s.detailLabel}>PROJECT</span>
-                <span style={s.detailValue}>{form.projectName}</span>
-              </div>
-              <div style={s.detailRow}>
-                <span style={s.detailLabel}>X HANDLE</span>
-                <span style={s.detailValue}>{form.xHandle}</span>
-              </div>
-              <div style={s.detailRow}>
-                <span style={s.detailLabel}>SPOTS REQUESTED</span>
-                <span style={s.detailValue}>{form.spotsRequested}</span>
-              </div>
-              <div style={s.detailRow}>
-                <span style={s.detailLabel}>CHAIN</span>
-                <span style={s.detailValue}>{form.chain || "Not specified"}</span>
-              </div>
-            </div>
-            <button onClick={() => { setSubmitted(false); setForm(INITIAL); }} style={s.resetBtn}>
+            <button onClick={() => { setSubmitted(false); setForm(INIT); }} className="px-6 py-2 bg-transparent border border-zinc-800 text-zinc-600 text-[10px] tracking-widest rounded-sm cursor-pointer hover:border-zinc-600 transition-all">
               SUBMIT ANOTHER
             </button>
           </div>
@@ -84,77 +72,68 @@ export default function Collab() {
 
   return (
     <MainLayout>
-      <style>{css}</style>
-      <div style={s.page}>
-        <div style={s.header}>
-          <div style={s.headerLabel}>PROJECT COLLAB</div>
-          <h1 style={s.title}>APPLY FOR COLLAB</h1>
-          <p style={s.subtitle}>
+      <div className="max-w-5xl mx-auto px-6 py-16">
+        <div className="text-center mb-16">
+          <p className="text-[10px] tracking-[0.5em] text-orange-400/70 mb-4">PROJECT COLLAB</p>
+          <h1 className="font-serif text-4xl md:text-5xl font-black text-white tracking-widest mb-5">APPLY FOR COLLAB</h1>
+          <p className="text-xs text-zinc-500 leading-relaxed">
             Want to offer WL spots to Earnity holders?<br />
             Fill out the form and we'll be in touch within 48 hours.
           </p>
         </div>
 
-        <div style={s.formWrap}>
-          {/* Left info panel */}
-          <div style={s.infoPanel}>
-            <div style={s.infoPanelTitle}>WHAT YOU GET</div>
+        <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-8 items-start">
+          {/* Info panel */}
+          <div className="bg-zinc-950 border border-white/5 rounded-sm p-7 md:sticky md:top-24">
+            <div className="text-[9px] tracking-[0.4em] text-orange-400/70 mb-7">WHAT YOU GET</div>
             {[
-              { icon: "◈", title: "Targeted Reach", desc: "Access to our engaged community of Web3 natives." },
-              { icon: "✦", title: "Quest Integration", desc: "Your project featured as an Earnity elemental quest." },
-              { icon: "🜂", title: "Co-Promotion", desc: "Shared announcements across X and Discord." },
-              { icon: "🜄", title: "Spot Allocation", desc: "You decide how many WL spots to offer Earnity holders." },
+              { icon: "◈", title: "Targeted Reach", desc: "Access to our engaged Web3 community." },
+              { icon: "✦", title: "Quest Integration", desc: "Featured as an Earnity elemental quest." },
+              { icon: "🜂", title: "Co-Promotion", desc: "Shared posts across X and Discord." },
+              { icon: "🜄", title: "Spot Allocation", desc: "You decide how many WL spots to offer." },
             ].map((item) => (
-              <div key={item.title} style={s.infoItem}>
-                <div style={s.infoItemIcon}>{item.icon}</div>
+              <div key={item.title} className="flex gap-4 mb-6">
+                <span className="text-lg text-orange-400 flex-shrink-0 mt-0.5">{item.icon}</span>
                 <div>
-                  <div style={s.infoItemTitle}>{item.title}</div>
-                  <div style={s.infoItemDesc}>{item.desc}</div>
+                  <div className="text-[10px] font-bold tracking-widest text-zinc-400 mb-1">{item.title}</div>
+                  <div className="text-[10px] text-zinc-700 leading-relaxed">{item.desc}</div>
                 </div>
               </div>
             ))}
-
-            <div style={s.infoDivider} />
-
-            <div style={s.infoContact}>
-              <div style={{ fontSize: 10, color: "#444", letterSpacing: 2, marginBottom: 8 }}>REACH US DIRECTLY</div>
-              <a href="https://x.com/earnity_" target="_blank" rel="noreferrer" style={s.infoLink}>
+            <div className="border-t border-white/5 pt-5 mt-2">
+              <div className="text-[9px] tracking-[0.3em] text-zinc-700 mb-3">DIRECT CONTACT</div>
+              <a href="https://x.com/earnity_" target="_blank" rel="noreferrer" className="text-xs text-zinc-600 no-underline hover:text-zinc-400 transition-colors tracking-wider">
                 𝕏 @earnity_
               </a>
             </div>
           </div>
 
           {/* Form */}
-          <div style={s.form}>
-            <div style={s.formGrid}>
-              <div style={s.field}>
-                <label style={s.label}>PROJECT NAME *</label>
-                <input style={s.input} placeholder="e.g. Pixel Realms" value={form.projectName} onChange={set("projectName")} />
+          <div className="bg-zinc-950 border border-white/5 rounded-sm p-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+              <div>
+                <label className={labelClass}>PROJECT NAME *</label>
+                <input className={inputClass} placeholder="e.g. Pixel Realms" value={form.projectName} onChange={set("projectName")} />
               </div>
-
-              <div style={s.field}>
-                <label style={s.label}>X (TWITTER) HANDLE *</label>
-                <input style={s.input} placeholder="@yourproject" value={form.xHandle} onChange={set("xHandle")} />
+              <div>
+                <label className={labelClass}>X (TWITTER) HANDLE *</label>
+                <input className={inputClass} placeholder="@yourproject" value={form.xHandle} onChange={set("xHandle")} />
               </div>
-
-              <div style={s.field}>
-                <label style={s.label}>DISCORD SERVER</label>
-                <input style={s.input} placeholder="discord.gg/yourserver" value={form.discord} onChange={set("discord")} />
+              <div>
+                <label className={labelClass}>DISCORD SERVER</label>
+                <input className={inputClass} placeholder="discord.gg/yourserver" value={form.discord} onChange={set("discord")} />
               </div>
-
-              <div style={s.field}>
-                <label style={s.label}>WEBSITE</label>
-                <input style={s.input} placeholder="https://yourproject.xyz" value={form.website} onChange={set("website")} />
+              <div>
+                <label className={labelClass}>WEBSITE</label>
+                <input className={inputClass} placeholder="https://yourproject.xyz" value={form.website} onChange={set("website")} />
               </div>
-
-              <div style={s.field}>
-                <label style={s.label}>WL SPOTS REQUESTED *</label>
-                <input style={s.input} placeholder="e.g. 50" type="number" value={form.spotsRequested} onChange={set("spotsRequested")} />
+              <div>
+                <label className={labelClass}>WL SPOTS REQUESTED *</label>
+                <input className={inputClass} placeholder="e.g. 50" type="number" value={form.spotsRequested} onChange={set("spotsRequested")} />
               </div>
-
-              <div style={s.field}>
-                <label style={s.label}>CHAIN</label>
-                <select style={s.select} value={form.chain} onChange={set("chain")}>
+              <div>
+                <label className={labelClass}>CHAIN</label>
+                <select className={inputClass} value={form.chain} onChange={set("chain")} style={{ appearance: "none" }}>
                   <option value="">Select chain</option>
                   <option value="Base">Base</option>
                   <option value="Ethereum">Ethereum</option>
@@ -163,18 +142,17 @@ export default function Collab() {
                   <option value="Other">Other</option>
                 </select>
               </div>
-
-              <div style={s.field}>
-                <label style={s.label}>CONTACT EMAIL</label>
-                <input style={s.input} placeholder="team@yourproject.xyz" type="email" value={form.contactEmail} onChange={set("contactEmail")} />
+              <div className="md:col-span-2">
+                <label className={labelClass}>CONTACT EMAIL</label>
+                <input className={inputClass} placeholder="team@yourproject.xyz" type="email" value={form.contactEmail} onChange={set("contactEmail")} />
               </div>
             </div>
 
-            <div style={{ ...s.field, marginTop: 4 }}>
-              <label style={s.label}>PROJECT DESCRIPTION *</label>
+            <div className="mb-6">
+              <label className={labelClass}>PROJECT DESCRIPTION *</label>
               <textarea
-                style={s.textarea}
-                placeholder="Tell us about your project — what you're building, your community size, mint date, etc."
+                className={`${inputClass} resize-none min-h-[120px] leading-relaxed`}
+                placeholder="Tell us about your project — what you're building, community size, mint date, etc."
                 value={form.description}
                 onChange={set("description")}
               />
@@ -182,92 +160,18 @@ export default function Collab() {
 
             <button
               onClick={handleSubmit}
-              disabled={!isValid || loading}
-              style={{
-                ...s.submitBtn,
-                opacity: isValid && !loading ? 1 : 0.4,
-                cursor: isValid && !loading ? "pointer" : "not-allowed",
-              }}
+              disabled={!valid || loading}
+              className="w-full py-4 bg-orange-500 hover:bg-orange-400 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold text-xs tracking-[0.3em] rounded-sm border-none cursor-pointer transition-all"
             >
               {loading ? "SUBMITTING..." : "SUBMIT APPLICATION →"}
             </button>
 
-            <div style={s.formNote}>
+            <p className="text-[9px] text-zinc-800 tracking-wider text-center mt-4">
               * Required fields. We review all applications manually and respond within 48 hours.
-            </div>
+            </p>
           </div>
         </div>
       </div>
     </MainLayout>
   );
 }
-
-const s: Record<string, React.CSSProperties> = {
-  page: { maxWidth: 1100, margin: "0 auto", padding: "60px 24px", fontFamily: "'Courier New', monospace" },
-  header: { textAlign: "center", marginBottom: 64 },
-  headerLabel: { fontSize: 10, letterSpacing: 4, color: "#FF4D1C", marginBottom: 12 },
-  title: { fontSize: "clamp(28px, 5vw, 48px)", fontWeight: 900, letterSpacing: 6, margin: "0 0 16px", color: "#fff" },
-  subtitle: { fontSize: 13, color: "#555", lineHeight: 1.8, letterSpacing: 0.5 },
-  formWrap: { display: "grid", gridTemplateColumns: "280px 1fr", gap: 32, alignItems: "start" },
-  infoPanel: { background: "#0a0a0a", border: "1px solid #1a1a1a", borderRadius: 4, padding: "28px 24px", position: "sticky", top: 80 },
-  infoPanelTitle: { fontSize: 10, letterSpacing: 4, color: "#FF4D1C", marginBottom: 24 },
-  infoItem: { display: "flex", gap: 14, marginBottom: 20 },
-  infoItemIcon: { fontSize: 18, color: "#FF4D1C", flexShrink: 0, marginTop: 2 },
-  infoItemTitle: { fontSize: 12, fontWeight: 700, letterSpacing: 1, color: "#ccc", marginBottom: 4 },
-  infoItemDesc: { fontSize: 11, color: "#444", lineHeight: 1.6 },
-  infoDivider: { height: 1, background: "#111", margin: "20px 0" },
-  infoContact: {},
-  infoLink: { fontSize: 12, color: "#666", textDecoration: "none", letterSpacing: 1 },
-  form: { background: "#0a0a0a", border: "1px solid #1a1a1a", borderRadius: 4, padding: "32px 28px" },
-  formGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 },
-  field: { display: "flex", flexDirection: "column", gap: 6 },
-  label: { fontSize: 10, letterSpacing: 3, color: "#444" },
-  input: {
-    background: "#050505", border: "1px solid #1e1e1e", color: "#fff",
-    padding: "11px 14px", fontFamily: "'Courier New', monospace", fontSize: 12,
-    borderRadius: 2, outline: "none", transition: "border-color 0.2s",
-  },
-  select: {
-    background: "#050505", border: "1px solid #1e1e1e", color: "#fff",
-    padding: "11px 14px", fontFamily: "'Courier New', monospace", fontSize: 12,
-    borderRadius: 2, outline: "none", appearance: "none",
-  },
-  textarea: {
-    background: "#050505", border: "1px solid #1e1e1e", color: "#fff",
-    padding: "11px 14px", fontFamily: "'Courier New', monospace", fontSize: 12,
-    borderRadius: 2, outline: "none", resize: "vertical", minHeight: 120,
-    lineHeight: 1.6,
-  },
-  submitBtn: {
-    width: "100%", marginTop: 24, background: "#FF4D1C", border: "none",
-    color: "#fff", padding: "14px", fontFamily: "'Courier New', monospace",
-    fontWeight: 900, fontSize: 13, letterSpacing: 3, borderRadius: 2,
-    transition: "opacity 0.2s",
-  },
-  formNote: { fontSize: 10, color: "#333", letterSpacing: 1, marginTop: 16, textAlign: "center" },
-  successWrap: {
-    maxWidth: 480, margin: "120px auto", textAlign: "center",
-    background: "#0a0a0a", border: "1px solid #B8FF1C22",
-    borderRadius: 4, padding: "48px 32px",
-  },
-  successIcon: { fontSize: 40, color: "#B8FF1C", marginBottom: 16, filter: "drop-shadow(0 0 16px #B8FF1C)" },
-  successTitle: { fontSize: 18, fontWeight: 900, letterSpacing: 6, color: "#fff", marginBottom: 12 },
-  successSub: { fontSize: 13, color: "#555", lineHeight: 1.8, marginBottom: 32 },
-  successDetails: { background: "#050505", border: "1px solid #111", borderRadius: 4, padding: "20px", marginBottom: 24, textAlign: "left" },
-  detailRow: { display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #0d0d0d" },
-  detailLabel: { fontSize: 10, color: "#444", letterSpacing: 2 },
-  detailValue: { fontSize: 12, color: "#888" },
-  resetBtn: {
-    background: "transparent", border: "1px solid #222", color: "#444",
-    padding: "10px 24px", fontFamily: "'Courier New', monospace",
-    fontSize: 11, letterSpacing: 2, cursor: "pointer", borderRadius: 2,
-  },
-};
-
-const css = `
-  @media (max-width: 768px) {
-    .collab-grid { grid-template-columns: 1fr !important; }
-    .form-grid { grid-template-columns: 1fr !important; }
-  }
-  input:focus, textarea:focus, select:focus { border-color: #FF4D1C44 !important; }
-`;
