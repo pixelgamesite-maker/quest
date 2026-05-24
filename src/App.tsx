@@ -8,12 +8,7 @@ import Collab from "@/pages/collab";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 1,
-      refetchOnWindowFocus: false,
-    },
-  },
+  defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
 });
 
 export default function App() {
