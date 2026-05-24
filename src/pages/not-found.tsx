@@ -2,24 +2,13 @@ import { Link } from "wouter";
 
 export default function NotFound() {
   return (
-    <div style={{
-      minHeight: "100vh", background: "#050505", display: "flex",
-      alignItems: "center", justifyContent: "center",
-      fontFamily: "'Courier New', monospace", color: "#fff",
-      flexDirection: "column", gap: 16, textAlign: "center",
-    }}>
-      <div style={{ fontSize: 64, color: "#FF4D1C22" }}>◈</div>
-      <div style={{ fontSize: 11, letterSpacing: 4, color: "#333" }}>ERROR 404</div>
-      <div style={{ fontSize: 28, fontWeight: 900, letterSpacing: 4 }}>PAGE NOT FOUND</div>
-      <div style={{ fontSize: 12, color: "#444", letterSpacing: 1 }}>
-        This page has been consumed by the void.
-      </div>
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center text-center px-6 font-mono">
+      <span className="text-7xl text-zinc-900 mb-6">◈</span>
+      <p className="text-[10px] tracking-[0.5em] text-zinc-700 mb-3">ERROR 404</p>
+      <h1 className="font-serif text-3xl font-black tracking-widest text-white mb-4">PAGE NOT FOUND</h1>
+      <p className="text-xs text-zinc-600 mb-10 tracking-wider">This page has been consumed by the void.</p>
       <Link href="/">
-        <button style={{
-          marginTop: 16, background: "transparent", border: "1px solid #222",
-          color: "#666", padding: "10px 24px", fontFamily: "'Courier New', monospace",
-          fontSize: 11, letterSpacing: 3, cursor: "pointer", borderRadius: 2,
-        }}>
+        <button className="px-8 py-3 bg-transparent border border-zinc-800 hover:border-zinc-600 text-zinc-600 hover:text-zinc-400 text-[10px] font-bold tracking-[0.3em] rounded-sm cursor-pointer transition-all">
           RETURN HOME
         </button>
       </Link>
