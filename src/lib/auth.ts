@@ -1,15 +1,5 @@
 import { supabase } from "@/lib/supabase";
 
-export async function signInWithX() {
-  const { error } = await supabase.auth.signInWithOAuth({
-    provider: "x",
-    options: {
-      redirectTo: `${window.location.origin}/auth/callback`,
-    },
-  });
-  if (error) console.error("X sign-in error:", error.message);
-}
-
 export async function signInWithDiscord(returnPath = "collab") {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "discord",
