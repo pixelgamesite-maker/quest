@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import { getDiscordAuthUrl } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 
@@ -9,9 +8,9 @@ type CollabRow = { id: string; discord_username: string; community_name: string;
 
 export default function Admin() {
   const { discordUser, isAdmin, loadingDiscord } = useAuth();
-  const [tab, setTab] = useState<"wl" | "collab">("wl");
-  const [wlRows, setWlRows] = useState<WLRow[]>([]);
-  const [collabRows, setCollabRows] = useState<CollabRow[]>([]);
+  const [tab, setTab] = useState<<"wl" | "collab">("wl");
+  const [wlRows, setWlRows] = useState<<WLRow[]>([]);
+  const [collabRows, setCollabRows] = useState<<CollabRow[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -62,11 +61,19 @@ export default function Admin() {
     return (
       <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-6">
         <p className="text-xs tracking-widest text-zinc-600">ADMIN ACCESS REQUIRED</p>
-        <a href={getDiscordAuthUrl("admin")}>
-          <button className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs tracking-[0.3em] rounded-sm border-none cursor-pointer">
-            SIGN IN WITH DISCORD
-          </button>
-        </a>
+        <button
+          onClick={async () => {
+            await supabase.auth.signInWithOAuth({
+              provider: "discord",
+              options: {
+                redirectTo: `${window.location.origin}/auth/callback`,
+              },
+            });
+          }}
+          className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs tracking-[0.3em] rounded-sm border-none cursor-pointer"
+        >
+          SIGN IN WITH DISCORD
+        </button>
       </div>
     );
   }
