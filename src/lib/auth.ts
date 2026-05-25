@@ -1,23 +1,27 @@
-export function getXAuthUrl() {
-  const params = new URLSearchParams({
-    response_type: "code",
-    client_id: import.meta.env.VITE_X_CLIENT_ID,
-    redirect_uri: import.meta.env.VITE_X_REDIRECT_URI,
-    scope: "tweet.read users.read follows.read like.read",
-    state: crypto.randomUUID(),
-    code_challenge: "challenge",
-    code_challenge_method: "plain",
+import { supabase } from "@/lib/supabase";
+
+export async function signInWithX() {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "x",
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    },
   });
-  return `https://twitter.com/i/oauth2/authorize?${params}`;
+  if (error) console.error("X sign-in error:", error.message);
 }
 
-export function getDiscordAuthUrl(state = "collab") {
-  const params = new URLSearchParams({
-    client_id: import.meta.env.VITE_DISCORD_CLIENT_ID,
-    redirect_uri: import.meta.env.VITE_DISCORD_REDIRECT_URI,
-    response_type: "code",
-    scope: "identify guilds",
-    state,
+export async function signInWithDiscord(returnPath = "collab") {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "discord",
+    options: {
+      redirectTo: `${window.location.origin}/auth/callback`,
+      scopes: "identify guilds",
+      queryParams: { state: returnPath },
+    },
   });
-  return `https://discord.com/api/oauth2/authorize?${params}`;
+  if (error) console.error("Discord sign-in error:", error.message);
+}
+
+export async function signOut() {
+  await supabase.auth.signOut();
 }
