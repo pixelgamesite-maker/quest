@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { MainLayout } from "@/layouts/main-layout";
 import { useAuth } from "@/contexts/auth-context";
-import { getDiscordAuthUrl } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 
@@ -71,11 +70,19 @@ function RaffleCard({ raffle, discordUser, onEnter }: { raffle: Raffle; discordU
             ENTER RAFFLE →
           </button>
         ) : (
-          <a href={getDiscordAuthUrl("raffles")} className="no-underline block">
-            <button className="w-full py-3 text-xs font-bold tracking-[0.3em] rounded-sm border border-indigo-500/40 text-indigo-400 bg-transparent cursor-pointer hover:bg-indigo-500/5 transition-all">
-              SIGN IN WITH DISCORD TO ENTER
-            </button>
-          </a>
+          <button
+            onClick={async () => {
+              await supabase.auth.signInWithOAuth({
+                provider: "discord",
+                options: {
+                  redirectTo: `${window.location.origin}/auth/callback`,
+                },
+              });
+            }}
+            className="w-full py-3 text-xs font-bold tracking-[0.3em] rounded-sm border border-indigo-500/40 text-indigo-400 bg-transparent cursor-pointer hover:bg-indigo-500/5 transition-all"
+          >
+            SIGN IN WITH DISCORD TO ENTER
+          </button>
         )
       )}
     </div>
