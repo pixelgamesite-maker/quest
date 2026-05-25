@@ -3,30 +3,29 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
+const port = Number(process.env.PORT) || 8080;
+
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
+  base: "/",
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.resolve(import.meta.dirname, "src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
-    dedupe: ["react", "react-dom"],
   },
-  root: path.resolve(import.meta.dirname),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist/public"),
+    outDir: "dist",
     emptyOutDir: true,
   },
   server: {
-  port: Number(process.env.PORT) || 8080,
-  host: "0.0.0.0",
-},
-preview: {
-  port,
-  strictPort: true,
-  host: "0.0.0.0",
-  allowedHosts: true,
-},
+    port,
+    strictPort: true,
+    host: "0.0.0.0",
+  },
+  preview: {
+    port,
+    strictPort: true,
+    host: "0.0.0.0",
+    allowedHosts: true,
+  },
 });
