@@ -2,9 +2,14 @@ import { Switch, Route } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/auth-context";
 import Home from "@/pages/home";
 import Whitelist from "@/pages/whitelist";
 import Collab from "@/pages/collab";
+import Raffles from "@/pages/raffles";
+import Admin from "@/pages/admin";
+import XCallback from "@/pages/auth/x-callback";
+import DiscordCallback from "@/pages/auth/discord-callback";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -14,15 +19,21 @@ const queryClient = new QueryClient({
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Switch>
-          <Route path="/" component={Home} />
-          <Route path="/whitelist" component={Whitelist} />
-          <Route path="/collab" component={Collab} />
-          <Route component={NotFound} />
-        </Switch>
-        <Toaster />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Switch>
+            <Route path="/" component={Home} />
+            <Route path="/whitelist" component={Whitelist} />
+            <Route path="/collab" component={Collab} />
+            <Route path="/raffles" component={Raffles} />
+            <Route path="/admin" component={Admin} />
+            <Route path="/auth/x/callback" component={XCallback} />
+            <Route path="/auth/discord/callback" component={DiscordCallback} />
+            <Route component={NotFound} />
+          </Switch>
+          <Toaster />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
