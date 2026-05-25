@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { MainLayout } from "@/layouts/main-layout";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/auth-context";
-import { signInWithX } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { useAnimationFrame } from "framer-motion";
 
@@ -91,7 +89,7 @@ function ElementalRing({ completedTasks }: { completedTasks: string[] }) {
 }
 
 export default function Whitelist() {
-  const { user, loading: loadingAuth } = useAuth();
+  const [sessionId, setSessionId] = useState<string | null>(null);
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [proofInputs, setProofInputs] = useState<Record<string, string>>({});
   const [pendingTask, setPendingTask] = useState<string | null>(null);
@@ -100,12 +98,48 @@ export default function Whitelist() {
   const [celebrating, setCelebrating] = useState(false);
   const { toast } = useToast();
 
-  const xHandle = user?.user_metadata?.preferred_username
-    || user?.user_metadata?.user_name
-    || user?.user_metadata?.screen_name;
-  const xAvatar = user?.user_metadata?.avatar_url
-    || user?.user_metadata?.profile_image_url;
-  const xId = user?.user_metadata?.provider_id || user?.user_metadata?.sub;
+  // Use anonymous Supabase session as identity
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data }) => {
+      let session = data.session;
+      if (!session) {
+        const { data: anonData } = await supabase.auth.signInAnonymously();
+        session = anonData.session;
+      }
+      if (session) {
+        setSessionId(session.user.id);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    if (sessionId) fetchSubmission();
+  }, [sessionId]);
+
+  const fetchSubmission = async () => {
+    if (!sessionId) return;
+    const { data } = await supabase
+      .from("wl_submissions")
+      .select("*")
+      .eq("session_id", sessionId)
+      .single();
+    if (data) {
+      setSubmission(data);
+      setWallet(data.wallet || "");
+    }
+  };
+
+  const ensureSubmission = async () => {
+    if (!sessionId) return;
+    const { data } = await supabase
+      .from("wl_submissions")
+      .select("id")
+      .eq("session_id", sessionId)
+      .single();
+    if (!data) {
+      await supabase.from("wl_submissions").insert({ session_id: sessionId });
+    }
+  };
 
   const done = (id: string) => {
     if (!submission) return false;
@@ -117,38 +151,22 @@ export default function Whitelist() {
   const isWL = completedCount >= 3;
   const walletSubmitted = !!submission?.wallet;
 
-  useEffect(() => {
-    if (user && xId) fetchSubmission();
-  }, [user]);
-
-  const fetchSubmission = async () => {
-    if (!xId) return;
-    const { data } = await supabase
-      .from("wl_submissions")
-      .select("*")
-      .eq("x_id", xId)
-      .single();
-    if (data) {
-      setSubmission(data);
-      setWallet(data.wallet || "");
-    }
-  };
-
   const isUnlocked = (index: number) => {
-    if (!user) return false;
+    if (!sessionId) return false;
     if (index === 0) return true;
     return done(TASKS[index - 1].id);
   };
 
   const handleTask = async (task: typeof TASKS[0]) => {
-    if (!user || !xId || !isUnlocked(TASKS.indexOf(task)) || done(task.id)) return;
+    if (!sessionId || !isUnlocked(TASKS.indexOf(task)) || done(task.id)) return;
+    await ensureSubmission();
     window.open(task.url, "_blank");
     if (!task.needsProof) {
       setPendingTask(task.id);
       setTimeout(async () => {
         await supabase.from("wl_submissions")
           .update({ [`${task.id}_done`]: true, updated_at: new Date().toISOString() })
-          .eq("x_id", xId);
+          .eq("session_id", sessionId);
         await fetchSubmission();
         setPendingTask(null);
         toast({ title: `${task.element} awakened ✦`, description: `${task.label} complete.` });
@@ -157,7 +175,8 @@ export default function Whitelist() {
   };
 
   const submitProof = async (taskId: string) => {
-    if (!xId || !proofInputs[taskId]?.trim()) return;
+    if (!sessionId || !proofInputs[taskId]?.trim()) return;
+    await ensureSubmission();
     setPendingTask(taskId);
     await supabase.from("wl_submissions")
       .update({
@@ -165,7 +184,7 @@ export default function Whitelist() {
         [`${taskId}_url`]: proofInputs[taskId].trim(),
         updated_at: new Date().toISOString(),
       })
-      .eq("x_id", xId);
+      .eq("session_id", sessionId);
     await fetchSubmission();
     setPendingTask(null);
     const task = TASKS.find((t) => t.id === taskId)!;
@@ -177,11 +196,11 @@ export default function Whitelist() {
   };
 
   const handleWalletSubmit = async () => {
-    if (!xId || !wallet.trim()) return;
+    if (!sessionId || !wallet.trim()) return;
     setSubmittingWallet(true);
     await supabase.from("wl_submissions")
       .update({ wallet: wallet.trim(), updated_at: new Date().toISOString() })
-      .eq("x_id", xId);
+      .eq("session_id", sessionId);
     await fetchSubmission();
     setSubmittingWallet(false);
     toast({ title: "Wallet registered!", description: "You're in the whitelist pool." });
@@ -207,30 +226,6 @@ export default function Whitelist() {
           <p className="text-xs text-zinc-500 leading-relaxed mb-6">
             Complete all 4 elemental tasks to secure your whitelist spot.
           </p>
-
-          {/* Sign in / user pill */}
-          {!user && !loadingAuth ? (
-            <button
-              onClick={signInWithX}
-              className="inline-flex items-center gap-3 px-8 py-4 bg-white hover:bg-zinc-100 text-black font-bold text-xs tracking-[0.3em] rounded-sm transition-all cursor-pointer border-none"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-              </svg>
-              SIGN IN WITH X TO START
-            </button>
-          ) : user && (
-            <div className="inline-flex items-center gap-3 bg-zinc-950 border border-white/5 rounded-full px-4 py-2">
-              {xAvatar && <img src={xAvatar} className="w-6 h-6 rounded-full" alt={xHandle} />}
-              <span className="text-xs text-zinc-400">@{xHandle}</span>
-              <button
-                onClick={() => supabase.auth.signOut()}
-                className="text-[9px] text-zinc-700 hover:text-zinc-500 tracking-widest cursor-pointer bg-transparent border-none"
-              >
-                SIGN OUT
-              </button>
-            </div>
-          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8 items-start">
@@ -275,10 +270,6 @@ export default function Whitelist() {
                           <span className="text-[10px] font-bold tracking-[0.2em] border px-3 py-1.5 rounded-sm"
                             style={{ color: task.color, borderColor: task.color + "44" }}>
                             ✓ DONE
-                          </span>
-                        ) : !user ? (
-                          <span className="text-[10px] text-zinc-800 tracking-widest px-3 py-1.5">
-                            🔒 SIGN IN
                           </span>
                         ) : !unlocked ? (
                           <span className="text-[10px] text-zinc-800 tracking-widest px-3 py-1.5">

@@ -80,9 +80,9 @@ export default function Home() {
           <h2 className="font-serif text-3xl md:text-4xl font-black text-white tracking-widest mb-16">THREE STEPS TO MINT</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { num: "01", title: "SIGN IN", desc: "Connect with your X account to begin your elemental journey.", color: "#FF5A1E" },
-              { num: "02", title: "COMPLETE TASKS", desc: "Complete 4 elemental tasks sequentially. Follow, like, quote and comment to awaken the elements.", color: "#FF1CF7" },
-              { num: "03", title: "SECURE SPOT", desc: "Submit your wallet after completing tasks. Get approved for whitelist and upgrade to GTD on earnity.fun.", color: "#1CA8FF" },
+              { num: "01", title: "COMPLETE TASKS", desc: "Complete 4 elemental tasks sequentially. Follow, like, quote and comment to awaken the elements.", color: "#FF5A1E" },
+              { num: "02", title: "SECURE SPOT", desc: "Submit your wallet after completing tasks. Get approved for whitelist and upgrade to GTD on earnity.fun.", color: "#FF1CF7" },
+              { num: "03", title: "MINT", desc: "GTD holders get a guaranteed mint slot. Be among the first to enter the Earnity realm.", color: "#1CA8FF" },
             ].map((step) => (
               <div key={step.num} className="bg-zinc-950 border border-white/5 rounded-sm p-8 text-left">
                 <div className="font-serif text-4xl font-black mb-4" style={{ color: step.color }}>{step.num}</div>
