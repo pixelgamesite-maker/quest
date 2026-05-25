@@ -10,7 +10,7 @@ export default function Admin() {
   const { discordUser, isAdmin, loadingDiscord } = useAuth();
   const [tab, setTab] = useState<"wl" | "collab">("wl");
   const [wlRows, setWlRows] = useState<WLRow[]>([]);
-  const [collabRows, setCollabRows] = useState<<CollabRow[]>([]);
+  const [collabRows, setCollabRows] = useState<CollabRow[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
