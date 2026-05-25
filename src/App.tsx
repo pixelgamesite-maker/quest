@@ -8,8 +8,7 @@ import Whitelist from "@/pages/whitelist";
 import Collab from "@/pages/collab";
 import Raffles from "@/pages/raffles";
 import Admin from "@/pages/admin";
-import XCallback from "@/pages/auth/x-callback";
-import DiscordCallback from "@/pages/auth/discord-callback";
+import AuthCallback from "@/pages/auth/callback";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -27,8 +26,7 @@ export default function App() {
             <Route path="/collab" component={Collab} />
             <Route path="/raffles" component={Raffles} />
             <Route path="/admin" component={Admin} />
-            <Route path="/auth/x/callback" component={XCallback} />
-            <Route path="/auth/discord/callback" component={DiscordCallback} />
+            <Route path="/auth/callback" component={AuthCallback} />
             <Route component={NotFound} />
           </Switch>
           <Toaster />
