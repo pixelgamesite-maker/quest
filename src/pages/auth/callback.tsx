@@ -14,23 +14,9 @@ export default function AuthCallback() {
       handled = true;
 
       const u = session.user;
-      const meta = u.user_metadata || {};
       const provider = u.app_metadata?.provider;
 
-      if (provider === "twitter" || provider === "x") {
-        const x_handle = meta.preferred_username || meta.user_name || meta.screen_name;
-        const x_avatar = meta.avatar_url || meta.profile_image_url;
-        const x_id = meta.provider_id || meta.sub;
-
-        await supabase.from("wl_submissions").upsert({
-          x_id,
-          x_handle,
-          x_avatar,
-          supabase_id: u.id,
-        }, { onConflict: "x_id", ignoreDuplicates: true });
-
-        navigate("/whitelist");
-      } else if (provider === "discord") {
+      if (provider === "discord") {
         navigate("/collab");
       } else {
         navigate("/");
