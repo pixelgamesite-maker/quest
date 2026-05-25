@@ -24,14 +24,14 @@ const INIT: Form = {
 
 export default function Collab() {
   const { discordUser, loadingDiscord, signOutDiscord } = useAuth();
-  const [form, setForm] = useState<<Form>(INIT);
+  const [form, setForm] = useState<Form>(INIT);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
   const set =
     (key: keyof Form) =>
-    (e: React.ChangeEvent<<HTMLInputElement | HTMLTextAreaElement>) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const valid = form.communityName && form.spotsRequested && form.description;
