@@ -7,4 +7,12 @@ if (!SUPABASE_URL || !SUPABASE_ANON) {
   throw new Error("Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY");
 }
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON);
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: {
+    flowType: "pkce",
+    detectSessionInUrl: false,
+    persistSession: true,
+    autoRefreshToken: true,
+    storageKey: "earnity-quest-auth",
+  },
+});
