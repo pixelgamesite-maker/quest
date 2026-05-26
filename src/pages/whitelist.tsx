@@ -45,14 +45,49 @@ type Submission = {
   comment_url: string | null;
   wallet: string | null;
   status: string;
-  // boost
   boost_tweet1: string | null;
   boost_tweet2: string | null;
   boost_tweet3: string | null;
   boost_submitted: boolean;
 };
 
-// ── 4-element ring ─────────────────────────────────────────────────────────────
+function DiscordSignIn() {
+  const [loading, setLoading] = useState(false);
+
+  const handleDiscordClick = async () => {
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "discord",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        scopes: "identify guilds",
+        queryParams: { state: "whitelist" },
+      },
+    });
+    if (error) {
+      console.error("Discord sign-in error:", error.message);
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="bg-zinc-950 border border-indigo-500/20 rounded-sm p-6 text-center">
+      <div className="text-2xl mb-3">⬡</div>
+      <div className="text-xs font-bold tracking-widest text-white mb-2">SIGN IN WITH DISCORD</div>
+      <p className="text-[10px] text-zinc-600 mb-4 leading-relaxed">
+        Connect your Discord to track your whitelist progress and secure your spot.
+      </p>
+      <button
+        onClick={handleDiscordClick}
+        disabled={loading}
+        className="w-full py-3 text-xs font-bold tracking-[0.3em] rounded-sm border border-indigo-500/50 text-indigo-400 hover:text-indigo-300 hover:border-indigo-400 bg-transparent cursor-pointer transition-all disabled:opacity-40"
+      >
+        {loading ? "CONNECTING..." : "CONNECT DISCORD"}
+      </button>
+    </div>
+  );
+}
+
 function ElementalRing4({ completedTasks }: { completedTasks: string[] }) {
   const angleRef = useRef(0);
   const [rotation, setRotation] = useState(0);
@@ -110,7 +145,6 @@ function ElementalRing4({ completedTasks }: { completedTasks: string[] }) {
   );
 }
 
-// ── WL Status card ─────────────────────────────────────────────────────────────
 function StatusCard({ submission }: { submission: Submission | null }) {
   if (!submission) return null;
 
@@ -135,7 +169,6 @@ function StatusCard({ submission }: { submission: Submission | null }) {
         </span>
       </div>
 
-      {/* Progress bar */}
       <div className="mb-4">
         <div className="flex justify-between text-[9px] tracking-widest text-zinc-700 mb-1.5">
           <span>ELEMENTAL TASKS</span>
@@ -148,7 +181,6 @@ function StatusCard({ submission }: { submission: Submission | null }) {
         </div>
       </div>
 
-      {/* Task pills */}
       <div className="flex flex-wrap gap-2 mb-4">
         {TASKS.map((task) => {
           const done = submission[`${task.id}_done` as keyof Submission] as boolean;
@@ -166,7 +198,6 @@ function StatusCard({ submission }: { submission: Submission | null }) {
         })}
       </div>
 
-      {/* Wallet */}
       {wallet && (
         <div className="border-t border-white/5 pt-3">
           <div className="text-[9px] tracking-[0.3em] text-zinc-700 mb-1">REGISTERED WALLET</div>
@@ -183,19 +214,18 @@ function StatusCard({ submission }: { submission: Submission | null }) {
   );
 }
 
-// ── Main page ──────────────────────────────────────────────────────────────────
 export default function Whitelist() {
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [submission, setSubmission] = useState<Submission | null>(null);
-  const [proofInputs, setProofInputs] = useState<Record<string, string>>({});
+  const [submission, setSubmission] = useState<<Submission | null>(null);
+  const [proofInputs, setProofInputs] = useState<<Record<string, string>>({});
   const [pendingTask, setPendingTask] = useState<string | null>(null);
   const [wallet, setWallet] = useState("");
   const [submittingWallet, setSubmittingWallet] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
-  // boost form
   const [boostLinks, setBoostLinks] = useState(["", "", ""]);
   const [submittingBoost, setSubmittingBoost] = useState(false);
   const [boostDone, setBoostDone] = useState(false);
+  const [discordUser, setDiscordUser] = useState<any>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -205,7 +235,15 @@ export default function Whitelist() {
         const { data: anonData } = await supabase.auth.signInAnonymously();
         session = anonData.session;
       }
-      if (session) setSessionId(session.user.id);
+      if (session) {
+        setSessionId(session.user.id);
+        if (session.user.user_metadata?.avatar_url) {
+          setDiscordUser({
+            username: session.user.user_metadata.full_name || session.user.user_metadata.name,
+            avatar: session.user.user_metadata.avatar_url,
+          });
+        }
+      }
     });
   }, []);
 
@@ -334,7 +372,6 @@ export default function Whitelist() {
       )}
 
       <div className="max-w-5xl mx-auto px-6 py-16">
-        {/* Header */}
         <div className="text-center mb-12">
           <p className="text-[10px] tracking-[0.5em] text-orange-400/70 mb-4">WHITELIST PORTAL</p>
           <h1 className="font-serif text-4xl md:text-6xl font-black text-white tracking-widest mb-5">CLAIM YOUR SPOT</h1>
@@ -342,10 +379,9 @@ export default function Whitelist() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 items-start">
-
-          {/* LEFT — Tasks */}
           <div className="flex flex-col gap-6">
-            {/* Task list */}
+            {!discordUser && <DiscordSignIn />}
+
             <div>
               <div className="flex justify-between items-center mb-4 pb-3 border-b border-white/5">
                 <span className="text-[10px] tracking-[0.3em] text-zinc-600">ELEMENTAL TASKS</span>
@@ -417,7 +453,6 @@ export default function Whitelist() {
               </div>
             </div>
 
-            {/* Wallet submission */}
             {isWL && (
               <div className="bg-zinc-950 border border-green-400/20 rounded-sm p-5">
                 <div className="text-[10px] tracking-[0.3em] text-green-400 mb-1">REGISTER WALLET</div>
@@ -443,12 +478,10 @@ export default function Whitelist() {
               </div>
             )}
 
-            {/* Status card */}
             {submission && walletSubmitted && (
               <StatusCard submission={submission} />
             )}
 
-            {/* Boost / Contribute box */}
             <div className="bg-zinc-950 border border-orange-500/15 rounded-sm p-5">
               <div className="flex items-center justify-between mb-1">
                 <div className="text-[10px] tracking-[0.3em] text-orange-400/80">GET APPROVED FASTER?</div>
@@ -490,9 +523,7 @@ export default function Whitelist() {
             </div>
           </div>
 
-          {/* RIGHT — Sidebar */}
           <div className="flex flex-col gap-4 lg:sticky lg:top-24">
-            {/* Ring */}
             <div className="bg-zinc-950 border border-white/5 rounded-sm p-6 flex flex-col items-center">
               <ElementalRing4 completedTasks={completedTasks} />
               <div className="w-full bg-zinc-900 rounded-full h-1 mt-5 mb-2">
@@ -504,7 +535,6 @@ export default function Whitelist() {
               </div>
             </div>
 
-            {/* GTD upgrade */}
             <div className="bg-zinc-950 border border-orange-500/20 rounded-sm p-5">
               <div className="text-[9px] tracking-[0.3em] text-orange-400/70 mb-2">READY FOR MORE?</div>
               <div className="text-xs font-bold tracking-widest text-white mb-2">UPGRADE TO GTD</div>
