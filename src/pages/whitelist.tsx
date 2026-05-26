@@ -202,7 +202,6 @@ function DiscordSignIn() {
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
         scopes: "identify guilds",
-        queryParams: { state: "whitelist" },
       },
     });
     if (error) {
