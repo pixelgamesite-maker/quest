@@ -7,7 +7,7 @@ type AuthContextType = {
   discordUser: DiscordUser | null;
   isAdmin: boolean;
   loadingDiscord: boolean;
-  signOutDiscord: () => void;
+  signOutDiscord: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
@@ -18,14 +18,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loadingDiscord, setLoadingDiscord] = useState(true);
 
   useEffect(() => {
-    const d = localStorage.getItem("earnity_discord_user");
-    if (d) {
-      const parsed = JSON.parse(d);
-      setDiscordUser(parsed);
-      checkAdmin(parsed.id);
-    }
-    setLoadingDiscord(false);
+    // Bootstrap from existing Supabase session
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) hydrateFromSession(data.session);
+      else setLoadingDiscord(false);
+    });
+
+    // Keep in sync on sign-in / sign-out
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) hydrateFromSession(session);
+      else {
+        setDiscordUser(null);
+        setIsAdmin(false);
+        setLoadingDiscord(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
+
+  const hydrateFromSession = async (session: any) => {
+    const meta = session.user.user_metadata;
+    const provider = session.user.app_metadata?.provider;
+    if (provider !== "discord") { setLoadingDiscord(false); return; }
+
+    const user: DiscordUser = {
+      id: meta.provider_id ?? session.user.id,
+      username: meta.full_name ?? meta.name ?? "Unknown",
+      avatar: meta.avatar_url ?? "",
+    };
+    setDiscordUser(user);
+    await checkAdmin(user.id);
+    setLoadingDiscord(false);
+  };
 
   const checkAdmin = async (discordId: string) => {
     const { data } = await supabase
@@ -36,8 +61,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsAdmin(!!data);
   };
 
-  const signOutDiscord = () => {
-    localStorage.removeItem("earnity_discord_user");
+  const signOutDiscord = async () => {
+    await supabase.auth.signOut();
     setDiscordUser(null);
     setIsAdmin(false);
   };
