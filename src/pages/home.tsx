@@ -145,50 +145,43 @@ export default function Home() {
       ))}
 
       {/* ── HERO ── */}
-      <section className="relative min-h-[calc(100vh-64px)] flex flex-col items-center justify-center text-center px-6 border-b border-white/5 overflow-hidden">
-        <div className="absolute inset-0 overflow-hidden">
-          <img src="/ground.jpg" alt="" className="w-full h-full object-cover opacity-40" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
-        </div>
+<section className="relative min-h-[calc(100vh-64px)] flex flex-col items-center justify-center text-center px-6 border-b border-white/5 overflow-hidden">
+  <div className="absolute inset-0 overflow-hidden">
+    <img src="/ground.jpg" alt="" className="w-full h-full object-cover opacity-40" />
+    <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
+  </div>
 
-        <div className="absolute inset-0 bg-gradient-to-b from-orange-500/5 via-transparent to-transparent pointer-events-none" />
+  <div className="absolute inset-0 bg-gradient-to-b from-orange-500/5 via-transparent to-transparent pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col items-center gap-10 max-w-3xl">
-          <div className="relative w-40 h-40 flex items-center justify-center">
-            <div className="absolute inset-0 rounded-full border border-orange-500/20 animate-spin-slow" />
-            <div className="absolute inset-5 rounded-full border border-yellow-400/15 animate-spin-reverse" />
-            <div className="absolute inset-10 rounded-full border border-blue-500/15 animate-spin-fast" />
-            <img src="/logo.jpg" alt="Earnity" className="relative z-10 w-20 h-20 rounded-full object-cover border-2 border-orange-500/30 animate-pulse-glow" />
-          </div>
+  <div className="relative z-10 flex flex-col items-center gap-10 max-w-3xl">
+    <div>
+      <p className="text-xs tracking-[0.5em] text-orange-400/70 mb-5">NFT WHITELIST PORTAL · SEASON I</p>
+      <h1 className="font-serif text-5xl md:text-7xl font-black leading-none mb-6">
+        <span className="text-white">ENTER THE </span>
+        <span className="text-gradient">EARNITY</span>
+        <br />
+        <span className="text-white">REALM</span>
+      </h1>
+      <p className="text-sm text-zinc-500 leading-relaxed max-w-md mx-auto">
+        Complete 4 elemental tasks. Secure your whitelist spot.<br />
+        Forge your path toward Eryth.
+      </p>
+    </div>
 
-          <div>
-            <p className="text-xs tracking-[0.5em] text-orange-400/70 mb-5">NFT WHITELIST PORTAL · SEASON I</p>
-            <h1 className="font-serif text-5xl md:text-7xl font-black leading-none mb-6">
-              <span className="text-white">ENTER THE </span>
-              <span className="text-gradient">EARNITY</span>
-              <br />
-              <span className="text-white">REALM</span>
-            </h1>
-            <p className="text-sm text-zinc-500 leading-relaxed max-w-md mx-auto">
-              Complete 4 elemental tasks. Secure your whitelist spot.<br />
-              Forge your path toward Eryth.
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Link href="/whitelist">
-              <button className="px-8 py-4 bg-orange-500 hover:bg-orange-400 text-white font-bold text-xs tracking-[0.3em] rounded-sm transition-all cursor-pointer border-none shadow-lg shadow-orange-500/20">
-                CLAIM WHITELIST →
-              </button>
-            </Link>
-            <Link href="/collab">
-              <button className="px-8 py-4 bg-transparent border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-zinc-200 font-bold text-xs tracking-[0.3em] rounded-sm transition-all cursor-pointer">
-                PROJECT COLLAB
-              </button>
-            </Link>
-          </div>
-        </div>
-      </section>
+    <div className="flex flex-wrap gap-4 justify-center">
+      <Link href="/whitelist">
+        <button className="px-8 py-4 bg-orange-500 hover:bg-orange-400 text-white font-bold text-xs tracking-[0.3em] rounded-sm transition-all cursor-pointer border-none shadow-lg shadow-orange-500/20">
+          CLAIM WHITELIST →
+        </button>
+      </Link>
+      <Link href="/collab">
+        <button className="px-8 py-4 bg-transparent border border-zinc-700 hover:border-zinc-500 text-zinc-400 hover:text-zinc-200 font-bold text-xs tracking-[0.3em] rounded-sm transition-all cursor-pointer">
+          PROJECT COLLAB
+        </button>
+      </Link>
+    </div>
+  </div>
+</section>
 
       {/* ── ABOUT ── */}
       <section className="border-b border-white/5 py-24 px-6">
