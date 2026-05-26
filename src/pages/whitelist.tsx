@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/lib/supabase";
 import { ELEMENTAL_IMAGES, GAME_ASSETS } from "@/lib/assets";
 import { useAnimationFrame } from "framer-motion";
+import { Copy, Check, ExternalLink } from "lucide-react";
 
 const TASKS = [
   {
@@ -50,6 +51,146 @@ type Submission = {
   boost_tweet3: string | null;
   boost_submitted: boolean;
 };
+
+function CopyBtn({ text }: { text: string }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }}
+      className="p-1.5 rounded-lg transition-colors hover:bg-white/10 text-white/40 hover:text-white"
+    >
+      {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+    </button>
+  );
+}
+
+function EarnityProfileCard({
+  username,
+  avatarUrl,
+  status,
+  wallet,
+  completedTasks,
+  totalTasks,
+}: {
+  username: string;
+  avatarUrl: string | null;
+  status: string;
+  wallet: string | null;
+  completedTasks: number;
+  totalTasks: number;
+}) {
+  const statusConfig: Record<string, { label: string; color: string; bg: string; border: string }> = {
+    approved: { label: "APPROVED", color: "#22c55e", bg: "bg-green-500/10", border: "border-green-500/30" },
+    declined: { label: "DECLINED", color: "#ef4444", bg: "bg-red-500/10", border: "border-red-500/30" },
+    pending:  { label: "PENDING",  color: "#facc15", bg: "bg-yellow-500/10", border: "border-yellow-500/30" },
+  };
+
+  const cfg = statusConfig[status] ?? statusConfig.pending;
+  const shortWallet = wallet ? `${wallet.slice(0, 6)}...${wallet.slice(-4)}` : null;
+  const progressPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+
+  return (
+    <div className="relative w-full max-w-md mx-auto">
+      <div className="relative bg-[#0a0a0f] border border-white/10 rounded-2xl overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-orange-500 via-yellow-400 to-orange-500" />
+
+        <div className="flex items-center justify-between px-5 pt-5 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg overflow-hidden border border-orange-500/30">
+              <img src="/logo.jpg" alt="Earnity" className="w-full h-full object-cover" />
+            </div>
+            <div>
+              <div className="text-[10px] font-bold tracking-[0.2em] text-white/80">EARNITY</div>
+              <div className="text-[8px] text-white/30 tracking-wider">WHITELIST PORTAL</div>
+            </div>
+          </div>
+          <div className={`px-2.5 py-1 rounded-full border text-[9px] font-bold tracking-wider ${cfg.bg} ${cfg.border}`}
+            style={{ color: cfg.color }}>
+            {cfg.label}
+          </div>
+        </div>
+
+        <div className="px-5 pb-5">
+          <div className="flex items-center gap-4 mb-5">
+            <div className="relative">
+              <div className="w-16 h-16 rounded-xl overflow-hidden border-2 border-white/10">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={username} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-orange-500/20 to-purple-500/20 flex items-center justify-center">
+                    <span className="text-2xl font-bold text-white/60">{username.charAt(0).toUpperCase()}</span>
+                  </div>
+                )}
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#0a0a0f]"
+                style={{ background: cfg.color }} />
+            </div>
+            <div>
+              <div className="text-lg font-bold text-white tracking-tight">{username}</div>
+              <div className="text-[10px] text-white/40 tracking-wider">Traveler</div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3 text-center">
+              <div className="text-lg font-bold text-orange-400">{completedTasks}</div>
+              <div className="text-[8px] text-white/30 tracking-wider uppercase">Tasks Done</div>
+            </div>
+            <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3 text-center">
+              <div className="text-lg font-bold text-white">{totalTasks}</div>
+              <div className="text-[8px] text-white/30 tracking-wider uppercase">Total Tasks</div>
+            </div>
+            <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3 text-center">
+              <div className="text-lg font-bold text-white">{progressPct}%</div>
+              <div className="text-[8px] text-white/30 tracking-wider uppercase">Progress</div>
+            </div>
+          </div>
+
+          <div className="mb-4">
+            <div className="flex justify-between text-[8px] text-white/30 mb-1.5 tracking-wider">
+              <span>WHITELIST PROGRESS</span>
+              <span>{completedTasks}/{totalTasks}</span>
+            </div>
+            <div className="w-full bg-white/5 rounded-full h-1.5">
+              <div className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${progressPct}%`,
+                  background: "linear-gradient(90deg, #f97316, #facc15)",
+                }} />
+            </div>
+          </div>
+
+          {wallet && (
+            <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-[8px] text-white/30 tracking-wider mb-1">BOUND WALLET</div>
+                  <div className="text-xs font-mono text-white/70">{shortWallet}</div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <CopyBtn text={wallet} />
+                  <a href={`https://etherscan.io/address/${wallet}`} target="_blank" rel="noopener noreferrer"
+                    className="p-1.5 rounded-lg hover:bg-white/10 transition-colors text-white/40 hover:text-white">
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
+            <span className="text-[9px] text-white/30 tracking-wider">EARNITY WL</span>
+            <span className="text-[9px] text-white/30 tracking-wider">SEASON I</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function DiscordSignIn() {
   const [loading, setLoading] = useState(false);
@@ -216,8 +357,8 @@ function StatusCard({ submission }: { submission: Submission | null }) {
 
 export default function Whitelist() {
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [submission, setSubmission] = useState<Submission | null>(null);
-  const [proofInputs, setProofInputs] = useState<Record<string, string>>({});
+  const [submission, setSubmission] = useState<<Submission | null>(null);
+  const [proofInputs, setProofInputs] = useState<<Record<string, string>>({});
   const [pendingTask, setPendingTask] = useState<string | null>(null);
   const [wallet, setWallet] = useState("");
   const [submittingWallet, setSubmittingWallet] = useState(false);
@@ -284,6 +425,9 @@ export default function Whitelist() {
 
   const completedTasks = TASKS.filter((t) => done(t.id)).map((t) => t.id);
   const completedCount = completedTasks.length;
+  const boostCount = [submission?.boost_tweet1, submission?.boost_tweet2, submission?.boost_tweet3].filter(Boolean).length;
+  const totalTasks = 4 + (boostCount > 0 ? 1 : 0);
+  const finalCompleted = completedCount + (submission?.boost_submitted ? 1 : 0);
   const isWL = completedCount >= 3;
   const walletSubmitted = !!submission?.wallet;
 
@@ -476,6 +620,18 @@ export default function Whitelist() {
                   </div>
                 )}
               </div>
+            )}
+
+            {/* Profile Card — appears under the EVM address box after wallet submit */}
+            {walletSubmitted && submission && (
+              <EarnityProfileCard
+                username={discordUser?.username || "Traveler"}
+                avatarUrl={discordUser?.avatar || null}
+                status={submission.status}
+                wallet={submission.wallet}
+                completedTasks={finalCompleted}
+                totalTasks={totalTasks}
+              />
             )}
 
             {submission && walletSubmitted && (
