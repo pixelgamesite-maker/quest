@@ -12,7 +12,11 @@ export function MainLayout({ children }: MainLayoutProps) {
       <nav className="sticky top-0 z-50 border-b border-white/5 bg-background/90 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 no-underline">
-            <span className="text-2xl glow-orange animate-pulse-glow">⬡</span>
+            <img
+              src="/logo.jpg"
+              alt="Earnity"
+              className="w-8 h-8 rounded-lg object-cover"
+            />
             <span className="font-serif font-black text-lg tracking-[0.3em] text-white">EARNITY</span>
           </Link>
 
