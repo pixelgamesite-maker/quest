@@ -35,6 +35,8 @@ const TASKS = [
 
 const RING_POSITIONS = [{ angle: -90 }, { angle: 0 }, { angle: 90 }, { angle: 180 }];
 
+const EVM_REGEX = /^0x[a-fA-F0-9]{40}$/;
+
 type Submission = {
   id?: string;
   session_id: string;
@@ -73,15 +75,11 @@ function EarnityProfileCard({
   avatarUrl,
   status,
   wallet,
-  completedTasks,
-  totalTasks,
 }: {
   username: string;
   avatarUrl: string | null;
   status: string;
   wallet: string | null;
-  completedTasks: number;
-  totalTasks: number;
 }) {
   const statusConfig: Record<string, { label: string; color: string; bg: string; border: string }> = {
     approved: { label: "APPROVED", color: "#22c55e", bg: "bg-green-500/10", border: "border-green-500/30" },
@@ -91,7 +89,6 @@ function EarnityProfileCard({
 
   const cfg = statusConfig[status] ?? statusConfig.pending;
   const shortWallet = wallet ? `${wallet.slice(0, 6)}...${wallet.slice(-4)}` : null;
-  const progressPct = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   return (
     <div className="relative w-full max-w-md mx-auto">
@@ -135,37 +132,8 @@ function EarnityProfileCard({
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 mb-4">
-            <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3 text-center">
-              <div className="text-lg font-bold text-orange-400">{completedTasks}</div>
-              <div className="text-[8px] text-white/30 tracking-wider uppercase">Tasks Done</div>
-            </div>
-            <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3 text-center">
-              <div className="text-lg font-bold text-white">{totalTasks}</div>
-              <div className="text-[8px] text-white/30 tracking-wider uppercase">Total Tasks</div>
-            </div>
-            <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3 text-center">
-              <div className="text-lg font-bold text-white">{progressPct}%</div>
-              <div className="text-[8px] text-white/30 tracking-wider uppercase">Progress</div>
-            </div>
-          </div>
-
-          <div className="mb-4">
-            <div className="flex justify-between text-[8px] text-white/30 mb-1.5 tracking-wider">
-              <span>WHITELIST PROGRESS</span>
-              <span>{completedTasks}/{totalTasks}</span>
-            </div>
-            <div className="w-full bg-white/5 rounded-full h-1.5">
-              <div className="h-full rounded-full transition-all duration-700"
-                style={{
-                  width: `${progressPct}%`,
-                  background: "linear-gradient(90deg, #f97316, #facc15)",
-                }} />
-            </div>
-          </div>
-
           {wallet && (
-            <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3">
+            <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3 mb-4">
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-[8px] text-white/30 tracking-wider mb-1">BOUND WALLET</div>
@@ -182,7 +150,7 @@ function EarnityProfileCard({
             </div>
           )}
 
-          <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
+          <div className="mt-2 pt-3 border-t border-white/5 flex items-center justify-between">
             <span className="text-[9px] text-white/30 tracking-wider">EARNITY WL</span>
             <span className="text-[9px] text-white/30 tracking-wider">SEASON I</span>
           </div>
@@ -285,86 +253,18 @@ function ElementalRing4({ completedTasks }: { completedTasks: string[] }) {
   );
 }
 
-function StatusCard({ submission }: { submission: Submission | null }) {
-  if (!submission) return null;
-
-  const status = submission.status || "pending";
-  const wallet = submission.wallet;
-  const completedCount = TASKS.filter((t) => submission[`${t.id}_done` as keyof Submission]).length;
-
-  const statusConfig = {
-    approved: { label: "WL APPROVED", color: "#22c55e", border: "border-green-500/30", bg: "bg-green-500/5", icon: "✦" },
-    declined: { label: "DECLINED", color: "#ef4444", border: "border-red-500/30", bg: "bg-red-500/5", icon: "✕" },
-    pending:  { label: "PENDING REVIEW", color: "#facc15", border: "border-yellow-400/30", bg: "bg-yellow-400/5", icon: "◌" },
-  };
-
-  const cfg = statusConfig[status as keyof typeof statusConfig] ?? statusConfig.pending;
-
-  return (
-    <div className={`rounded-sm border ${cfg.border} ${cfg.bg} p-5`}>
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-[9px] tracking-[0.3em] text-zinc-600">APPLICATION CARD</span>
-        <span className="text-[10px] font-bold tracking-widest" style={{ color: cfg.color }}>
-          {cfg.icon} {cfg.label}
-        </span>
-      </div>
-
-      <div className="mb-4">
-        <div className="flex justify-between text-[9px] tracking-widest text-zinc-700 mb-1.5">
-          <span>ELEMENTAL TASKS</span>
-          <span>{completedCount}/4</span>
-        </div>
-        <div className="w-full bg-zinc-900 rounded-full h-1">
-          <div className="h-1 rounded-full transition-all duration-700"
-            style={{ width: `${(completedCount / 4) * 100}%`,
-              background: "linear-gradient(90deg, #f97316, #facc15)" }} />
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2 mb-4">
-        {TASKS.map((task) => {
-          const done = submission[`${task.id}_done` as keyof Submission] as boolean;
-          return (
-            <span key={task.id}
-              className="text-[9px] tracking-widest px-2.5 py-1 rounded-sm border transition-all"
-              style={{
-                color: done ? task.color : "#2a2a2a",
-                borderColor: done ? task.color + "44" : "#1a1a1a",
-                background: done ? task.color + "10" : "#080808",
-              }}>
-              {done ? "✓" : "○"} {task.element}
-            </span>
-          );
-        })}
-      </div>
-
-      {wallet && (
-        <div className="border-t border-white/5 pt-3">
-          <div className="text-[9px] tracking-[0.3em] text-zinc-700 mb-1">REGISTERED WALLET</div>
-          <div className="text-[10px] font-mono text-zinc-500 break-all">{wallet}</div>
-        </div>
-      )}
-
-      {status === "approved" && (
-        <div className="mt-4 text-center py-2 border border-green-500/20 rounded-sm">
-          <span className="text-[10px] tracking-widest text-green-400">🎉 CONGRATULATIONS — YOU ARE WHITELISTED</span>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function Whitelist() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [submission, setSubmission] = useState<Submission | null>(null);
   const [proofInputs, setProofInputs] = useState<Record<string, string>>({});
   const [pendingTask, setPendingTask] = useState<string | null>(null);
   const [wallet, setWallet] = useState("");
+  const [walletError, setWalletError] = useState("");
   const [submittingWallet, setSubmittingWallet] = useState(false);
   const [celebrating, setCelebrating] = useState(false);
   const [boostLinks, setBoostLinks] = useState(["", "", ""]);
-  const [submittingBoost, setSubmittingBoost] = useState(false);
-  const [boostDone, setBoostDone] = useState(false);
+  const [submittingBoost, setSubmittingBoost] = useState<number | null>(null);
+  const [boostDone, setBoostDone] = useState([false, false, false]);
   const [discordUser, setDiscordUser] = useState<any>(null);
   const { toast } = useToast();
 
@@ -401,7 +301,11 @@ export default function Whitelist() {
     if (data) {
       setSubmission(data);
       setWallet(data.wallet || "");
-      setBoostDone(data.boost_submitted || false);
+      setBoostDone([
+        !!data.boost_tweet1,
+        !!data.boost_tweet2,
+        !!data.boost_tweet3,
+      ]);
     }
   };
 
@@ -424,9 +328,6 @@ export default function Whitelist() {
 
   const completedTasks = TASKS.filter((t) => done(t.id)).map((t) => t.id);
   const completedCount = completedTasks.length;
-  const boostCount = [submission?.boost_tweet1, submission?.boost_tweet2, submission?.boost_tweet3].filter(Boolean).length;
-  const totalTasks = 4 + (boostCount > 0 ? 1 : 0);
-  const finalCompleted = completedCount + (submission?.boost_submitted ? 1 : 0);
   const isWL = completedCount >= 3;
   const walletSubmitted = !!submission?.wallet;
 
@@ -472,6 +373,11 @@ export default function Whitelist() {
 
   const handleWalletSubmit = async () => {
     if (!sessionId || !wallet.trim()) return;
+    if (!EVM_REGEX.test(wallet.trim())) {
+      setWalletError("Invalid EVM address. Must start with 0x and be 42 characters.");
+      return;
+    }
+    setWalletError("");
     setSubmittingWallet(true);
     await ensureSubmission();
     await supabase.from("wl_submissions_quest")
@@ -482,25 +388,24 @@ export default function Whitelist() {
     toast({ title: "Wallet registered!", description: "Your application is under review." });
   };
 
-  const handleBoostSubmit = async () => {
-    const filled = boostLinks.filter((l) => l.trim());
-    if (!sessionId || filled.length === 0) return;
-    setSubmittingBoost(true);
+  const handleBoostSubmit = async (index: number) => {
+    const link = boostLinks[index].trim();
+    if (!sessionId || !link) return;
+    setSubmittingBoost(index);
     await ensureSubmission();
+    const field = `boost_tweet${index + 1}`;
     await supabase.from("wl_submissions_quest")
-      .update({
-        boost_tweet1: boostLinks[0].trim() || null,
-        boost_tweet2: boostLinks[1].trim() || null,
-        boost_tweet3: boostLinks[2].trim() || null,
-        boost_submitted: true,
-        updated_at: new Date().toISOString(),
-      })
+      .update({ [field]: link, updated_at: new Date().toISOString() })
       .eq("session_id", sessionId);
     await fetchSubmission();
-    setSubmittingBoost(false);
-    setBoostDone(true);
-    toast({ title: "Contribution submitted!", description: "We'll review your links manually." });
+    setSubmittingBoost(null);
+    const updated = [...boostDone];
+    updated[index] = true;
+    setBoostDone(updated);
+    toast({ title: "Contribution submitted!", description: "We'll review your link manually." });
   };
+
+  const BOOST_LABELS = ["TWEET / POST LINK", "ARTICLE / THREAD LINK", "CONTRIBUTION LINK"];
 
   return (
     <MainLayout>
@@ -596,18 +501,28 @@ export default function Whitelist() {
               </div>
             </div>
 
+            {/* Register Wallet */}
             {isWL && (
               <div className="bg-zinc-950 border border-green-400/20 rounded-sm p-5">
                 <div className="text-[10px] tracking-[0.3em] text-green-400 mb-1">REGISTER WALLET</div>
                 <div className="text-[10px] text-zinc-600 mb-4 leading-relaxed">Submit your EVM address to lock your whitelist spot.</div>
                 {!walletSubmitted ? (
                   <>
-                    <input type="text" placeholder="0x..."
-                      value={wallet} onChange={(e) => setWallet(e.target.value)}
-                      className="w-full bg-black border border-zinc-800 text-white px-4 py-3 text-xs font-mono rounded-sm mb-3 block" />
-                    <button onClick={handleWalletSubmit}
+                    <input
+                      type="text"
+                      placeholder="0x..."
+                      value={wallet}
+                      onChange={(e) => { setWallet(e.target.value); setWalletError(""); }}
+                      className={`w-full bg-black border text-white px-4 py-3 text-xs font-mono rounded-sm mb-1 block ${walletError ? "border-red-500/60" : "border-zinc-800"}`}
+                    />
+                    {walletError && (
+                      <div className="text-[10px] text-red-400 mb-3">{walletError}</div>
+                    )}
+                    <button
+                      onClick={handleWalletSubmit}
                       disabled={!wallet.trim() || submittingWallet}
-                      className="w-full py-3 text-xs font-bold tracking-[0.3em] rounded-sm border border-green-400/40 text-green-400 bg-transparent cursor-pointer transition-all disabled:opacity-40">
+                      className="w-full py-3 mt-2 text-xs font-bold tracking-[0.3em] rounded-sm border border-green-400/40 text-green-400 bg-transparent cursor-pointer transition-all disabled:opacity-40"
+                    >
                       {submittingWallet ? "SUBMITTING..." : "SUBMIT WALLET"}
                     </button>
                   </>
@@ -621,63 +536,74 @@ export default function Whitelist() {
               </div>
             )}
 
-            {/* Profile Card — appears under the EVM address box after wallet submit */}
+            {/* Profile Card */}
             {walletSubmitted && submission && (
               <EarnityProfileCard
                 username={discordUser?.username || "Traveler"}
                 avatarUrl={discordUser?.avatar || null}
                 status={submission.status}
                 wallet={submission.wallet}
-                completedTasks={finalCompleted}
-                totalTasks={totalTasks}
               />
             )}
 
-            {submission && walletSubmitted && (
-              <StatusCard submission={submission} />
+            {/* Upgrade to GTD — shown after wallet submitted */}
+            {walletSubmitted && (
+              <div className="bg-zinc-950 border border-orange-500/20 rounded-sm overflow-hidden">
+                <a href="https://earnity.fun" target="_blank" rel="noreferrer" className="no-underline block">
+                  <div className="relative h-48 overflow-hidden cursor-pointer group">
+                    <img src="/IMG_8789.jpeg" alt="Upgrade to GTD" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-5">
+                      <div className="text-[9px] tracking-[0.3em] text-orange-400/70 mb-1">READY FOR MORE?</div>
+                      <div className="text-sm font-bold tracking-[0.2em] text-white mb-1">UPGRADE TO GTD</div>
+                      <div className="text-[10px] text-zinc-400 leading-relaxed">GTD holders get a guaranteed mint slot. Collect all 6 Elementals on earnity.fun.</div>
+                      <div className="mt-3 text-[10px] font-bold tracking-widest text-orange-400">ENTER EARNITY.FUN →</div>
+                    </div>
+                  </div>
+                </a>
+              </div>
             )}
 
+            {/* Individual Contributions */}
             <div className="bg-zinc-950 border border-orange-500/15 rounded-sm p-5">
-              <div className="flex items-center justify-between mb-1">
-                <div className="text-[10px] tracking-[0.3em] text-orange-400/80">GET APPROVED FASTER?</div>
-                {boostDone && (
-                  <span className="text-[9px] tracking-widest text-green-400 border border-green-400/30 px-2 py-1 rounded-sm">✓ SUBMITTED</span>
-                )}
-              </div>
+              <div className="text-[10px] tracking-[0.3em] text-orange-400/80 mb-1">GET APPROVED FASTER?</div>
               <div className="text-[10px] text-zinc-600 mb-5 leading-relaxed">
-                Write a tweet, article, or contribute to Earnity. Paste your links below — we'll review them manually.
+                Write a tweet, article, or contribute to Earnity. Submit each link individually — we'll review them manually.
               </div>
-
-              {!boostDone ? (
-                <>
-                  <div className="flex flex-col gap-3 mb-4">
-                    {[0, 1, 2].map((i) => (
-                      <div key={i}>
-                        <div className="text-[9px] tracking-[0.2em] text-zinc-700 mb-1.5">
-                          {i === 0 ? "TWEET / POST LINK" : i === 1 ? "ARTICLE / THREAD LINK" : "CONTRIBUTION LINK"}
-                        </div>
-                        <input type="text" placeholder="https://..."
+              <div className="flex flex-col gap-4">
+                {[0, 1, 2].map((i) => (
+                  <div key={i}>
+                    <div className="text-[9px] tracking-[0.2em] text-zinc-700 mb-1.5">{BOOST_LABELS[i]}</div>
+                    {boostDone[i] ? (
+                      <div className="flex items-center gap-2 px-3 py-2.5 bg-green-500/5 border border-green-500/20 rounded-sm">
+                        <Check className="w-3.5 h-3.5 text-green-400 flex-shrink-0" />
+                        <span className="text-[10px] text-green-400 tracking-wider">SUBMITTED</span>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          placeholder="https://..."
                           value={boostLinks[i]}
                           onChange={(e) => setBoostLinks((prev) => { const n = [...prev]; n[i] = e.target.value; return n; })}
-                          className="w-full bg-black border border-zinc-800 text-white px-3 py-2.5 text-xs font-mono rounded-sm block" />
+                          className="flex-1 bg-black border border-zinc-800 text-white px-3 py-2.5 text-xs font-mono rounded-sm block"
+                        />
+                        <button
+                          onClick={() => handleBoostSubmit(i)}
+                          disabled={submittingBoost === i || !boostLinks[i].trim()}
+                          className="px-3 py-2 text-[10px] font-bold tracking-widest rounded-sm border border-orange-500/30 text-orange-400 bg-transparent cursor-pointer transition-all disabled:opacity-40 whitespace-nowrap"
+                        >
+                          {submittingBoost === i ? "..." : "SUBMIT"}
+                        </button>
                       </div>
-                    ))}
+                    )}
                   </div>
-                  <button onClick={handleBoostSubmit}
-                    disabled={submittingBoost || boostLinks.every((l) => !l.trim())}
-                    className="w-full py-3 text-xs font-bold tracking-[0.3em] rounded-sm border border-orange-500/30 text-orange-400 bg-transparent cursor-pointer transition-all disabled:opacity-40">
-                    {submittingBoost ? "SUBMITTING..." : "SUBMIT CONTRIBUTION"}
-                  </button>
-                </>
-              ) : (
-                <div className="text-center py-4">
-                  <div className="text-orange-400 text-xl mb-2">✦</div>
-                  <div className="text-xs text-zinc-500 tracking-wider">Contribution received. We'll review your links shortly.</div>
-                </div>
-              )}
+                ))}
+              </div>
             </div>
           </div>
 
+          {/* Right sidebar */}
           <div className="flex flex-col gap-4 lg:sticky lg:top-24">
             <div className="bg-zinc-950 border border-white/5 rounded-sm p-6 flex flex-col items-center">
               <ElementalRing4 completedTasks={completedTasks} />
@@ -688,25 +614,6 @@ export default function Whitelist() {
               <div className="text-[9px] tracking-widest text-zinc-700 mt-1">
                 {completedCount === 4 ? "ALL ELEMENTS AWAKENED" : `${4 - completedCount} ELEMENTS REMAINING`}
               </div>
-            </div>
-
-            <div className="bg-zinc-950 border border-orange-500/20 rounded-sm p-5">
-              <div className="text-[9px] tracking-[0.3em] text-orange-400/70 mb-2">READY FOR MORE?</div>
-              <div className="text-xs font-bold tracking-widest text-white mb-2">UPGRADE TO GTD</div>
-              <div className="text-[10px] text-zinc-600 leading-relaxed mb-4">
-                GTD holders get a guaranteed mint slot. Collect all 6 Elementals on earnity.fun to qualify.
-              </div>
-              <a href="https://earnity.fun" target="_blank" rel="noreferrer" className="no-underline block">
-                <div className="relative h-20 flex items-center justify-center rounded-sm border border-orange-500/20 overflow-hidden cursor-pointer group">
-                  <div className="absolute inset-0 bg-black/60 group-hover:bg-black/50 transition-all" />
-                  <div className="absolute w-16 h-16 rounded-full border border-orange-500/30 animate-spin-slow" />
-                  <div className="relative z-10 text-center">
-                    <div className="text-sm mb-0.5 glow-orange">⬡</div>
-                    <div className="text-[10px] font-bold tracking-[0.25em] text-white">EARNITY.FUN</div>
-                    <div className="text-[9px] text-orange-400">ENTER →</div>
-                  </div>
-                </div>
-              </a>
             </div>
           </div>
         </div>
