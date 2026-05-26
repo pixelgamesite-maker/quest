@@ -1,11 +1,42 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "wouter";
+import { useAuth } from "@/contexts/auth-context";
+import { signInWithDiscord } from "@/lib/auth";
 
 interface MainLayoutProps { children: ReactNode; }
 
 export function MainLayout({ children }: MainLayoutProps) {
   const [location] = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { discordUser, loadingDiscord, signOutDiscord } = useAuth();
+
+  const handleDiscordClick = () => {
+    if (discordUser) {
+      signOutDiscord();
+    } else {
+      signInWithDiscord("collab");
+    }
+  };
+
+  const DiscordButton = ({ fullWidth = false }: { fullWidth?: boolean }) => (
+    <button
+      onClick={handleDiscordClick}
+      className={`${fullWidth ? "w-full" : "px-4"} py-2 text-xs font-bold tracking-widest border rounded-sm bg-transparent cursor-pointer transition-all
+        ${discordUser
+          ? "border-indigo-400/50 text-indigo-300 hover:border-red-500/50 hover:text-red-400"
+          : "border-indigo-500/50 text-indigo-400 hover:border-indigo-400 hover:text-indigo-300"
+        }`}
+    >
+      {loadingDiscord ? "..." : discordUser ? (
+        <span className="flex items-center gap-2 justify-center">
+          {discordUser.avatar && (
+            <img src={discordUser.avatar} className="w-4 h-4 rounded-full" alt="" />
+          )}
+          {discordUser.username}
+        </span>
+      ) : "DISCORD"}
+    </button>
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -35,18 +66,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           </div>
 
           <div className="hidden md:flex items-center gap-3">
-            <button
-              className="px-4 py-2 text-xs font-bold tracking-widest border border-zinc-700 text-zinc-400 hover:border-zinc-500 hover:text-zinc-200 transition-all rounded-sm bg-transparent cursor-pointer"
-              onClick={() => alert("X auth — wire to Supabase")}
-            >
-              𝕏 SIGN IN
-            </button>
-            <button
-              className="px-4 py-2 text-xs font-bold tracking-widest border border-indigo-500/50 text-indigo-400 hover:border-indigo-400 hover:text-indigo-300 transition-all rounded-sm bg-transparent cursor-pointer"
-              onClick={() => alert("Discord auth — wire to Supabase")}
-            >
-              DISCORD
-            </button>
+            <DiscordButton />
           </div>
 
           <button
@@ -72,13 +92,8 @@ export function MainLayout({ children }: MainLayoutProps) {
                 {label}
               </Link>
             ))}
-            <div className="flex gap-3 pt-2 border-t border-white/5">
-              <button className="flex-1 py-2 text-xs font-bold tracking-widest border border-zinc-700 text-zinc-400 rounded-sm bg-transparent cursor-pointer">
-                𝕏 SIGN IN
-              </button>
-              <button className="flex-1 py-2 text-xs font-bold tracking-widest border border-indigo-500/50 text-indigo-400 rounded-sm bg-transparent cursor-pointer">
-                DISCORD
-              </button>
+            <div className="pt-2 border-t border-white/5">
+              <DiscordButton fullWidth />
             </div>
           </div>
         )}
