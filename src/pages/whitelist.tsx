@@ -37,6 +37,10 @@ const RING_POSITIONS = [{ angle: -90 }, { angle: 0 }, { angle: 90 }, { angle: 18
 
 const EVM_REGEX = /^0x[a-fA-F0-9]{40}$/;
 
+// ── Set this to your actual deadline ──────────────────────────────────────────
+// Replace with your real end date, e.g. new Date("2025-06-10T18:00:00Z")
+const COUNTDOWN_END = new Date(Date.now() + 72 * 60 * 60 * 1000);
+
 type Submission = {
   id?: string;
   session_id: string;
@@ -53,6 +57,98 @@ type Submission = {
   boost_tweet3: string | null;
   boost_submitted: boolean;
 };
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CountdownBanner – 72-hour timer shown at the very top of the page
+// ─────────────────────────────────────────────────────────────────────────────
+function CountdownBanner() {
+  const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0, expired: false });
+
+  useEffect(() => {
+    const calc = () => {
+      const diff = COUNTDOWN_END.getTime() - Date.now();
+      if (diff <= 0) {
+        setTimeLeft({ hours: 0, minutes: 0, seconds: 0, expired: true });
+        return;
+      }
+      const totalSec = Math.floor(diff / 1000);
+      setTimeLeft({
+        hours: Math.floor(totalSec / 3600),
+        minutes: Math.floor((totalSec % 3600) / 60),
+        seconds: totalSec % 60,
+        expired: false,
+      });
+    };
+    calc();
+    const id = setInterval(calc, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  return (
+    <div className="w-full border-b border-orange-500/20 bg-black/60 backdrop-blur-sm py-3 px-6">
+      <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-8">
+        <div className="flex items-center gap-2">
+          {/* pulsing dot */}
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-orange-500" />
+          </span>
+          <span className="text-[9px] tracking-[0.4em] text-orange-400/80 font-mono">WHITELIST CLOSES IN</span>
+        </div>
+
+        {timeLeft.expired ? (
+          <span className="text-[10px] tracking-[0.4em] text-red-400 font-mono">WHITELIST CLOSED</span>
+        ) : (
+          <div className="flex items-center gap-1 font-mono">
+            {/* Hours */}
+            <div className="flex flex-col items-center">
+              <span
+                className="text-2xl font-black tabular-nums leading-none"
+                style={{
+                  color: "#f97316",
+                  textShadow: "0 0 18px rgba(249,115,22,0.6)",
+                }}
+              >
+                {pad(timeLeft.hours)}
+              </span>
+              <span className="text-[7px] tracking-[0.3em] text-zinc-600 mt-0.5">HRS</span>
+            </div>
+            <span className="text-orange-500/60 text-xl font-black mb-3 mx-1">:</span>
+            {/* Minutes */}
+            <div className="flex flex-col items-center">
+              <span
+                className="text-2xl font-black tabular-nums leading-none"
+                style={{
+                  color: "#f97316",
+                  textShadow: "0 0 18px rgba(249,115,22,0.6)",
+                }}
+              >
+                {pad(timeLeft.minutes)}
+              </span>
+              <span className="text-[7px] tracking-[0.3em] text-zinc-600 mt-0.5">MIN</span>
+            </div>
+            <span className="text-orange-500/60 text-xl font-black mb-3 mx-1">:</span>
+            {/* Seconds */}
+            <div className="flex flex-col items-center">
+              <span
+                className="text-2xl font-black tabular-nums leading-none"
+                style={{
+                  color: "#facc15",
+                  textShadow: "0 0 18px rgba(250,204,21,0.5)",
+                }}
+              >
+                {pad(timeLeft.seconds)}
+              </span>
+              <span className="text-[7px] tracking-[0.3em] text-zinc-600 mt-0.5">SEC</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 function CopyBtn({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -409,6 +505,9 @@ export default function Whitelist() {
 
   return (
     <MainLayout>
+      {/* ── 72-hour countdown banner ───────────────────────────────────────── */}
+      <CountdownBanner />
+
       {celebrating && (
         <div className="animate-fade-in-out fixed inset-0 bg-black/95 flex items-center justify-center z-[100] text-center">
           <div>
@@ -546,7 +645,7 @@ export default function Whitelist() {
               />
             )}
 
-            {/* Upgrade to GTD — shown after wallet submitted */}
+            {/* Upgrade to GTD */}
             {walletSubmitted && (
               <div className="bg-zinc-950 border border-orange-500/20 rounded-sm overflow-hidden">
                 <a href="https://earnity.fun" target="_blank" rel="noreferrer" className="no-underline block">
