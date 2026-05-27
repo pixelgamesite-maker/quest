@@ -17,19 +17,19 @@ const TASKS = [
     id: "like", element: "WATER", color: "#3b82f6", glow: "rgba(59,130,246,0.4)",
     img: ELEMENTAL_IMAGES.water, label: "Like the Post",
     desc: "Like our announcement post", action: "LIKE →",
-    url: "https://x.com/earnity_/status/2059543689223885305?s=20", needsProof: false,
+    url: "https://x.com/earnity_/status/2055705533596778558?s=20", needsProof: false,
   },
   {
     id: "quote", element: "NATURE", color: "#22c55e", glow: "rgba(34,197,94,0.4)",
     img: ELEMENTAL_IMAGES.nature, label: "Quote the Post",
     desc: "Quote our post with your thoughts", action: "QUOTE →",
-    url: "https://x.com/earnity_/status/2059543689223885305?s=20", needsProof: true,
+    url: "https://x.com/earnity_/status/2055705533596778558?s=20", needsProof: true,
   },
   {
     id: "comment", element: "LIGHTNING", color: "#facc15", glow: "rgba(250,204,21,0.4)",
     img: ELEMENTAL_IMAGES.lightning, label: "Comment on Post",
     desc: "Drop a comment on our post", action: "COMMENT →",
-    url: "https://x.com/earnity_/status/2059543689223885305?s=20", needsProof: true,
+    url: "https://x.com/earnity_/status/2055705533596778558?s=20", needsProof: true,
   },
 ];
 
@@ -37,9 +37,9 @@ const RING_POSITIONS = [{ angle: -90 }, { angle: 0 }, { angle: 90 }, { angle: 18
 
 const EVM_REGEX = /^0x[a-fA-F0-9]{40}$/;
 
-// ── Set this to your actual deadline ──────────────────────────────────────────
-// Replace with your real end date, e.g. new Date("2025-06-10T18:00:00Z")
-const COUNTDOWN_END = new Date(Date.now() + 72 * 60 * 60 * 1000);
+// ── Global whitelist deadline — everyone sees the same clock ─────────────────
+// Update this to your real cutoff date/time (ISO 8601 UTC).
+const COUNTDOWN_END = new Date("2025-06-10T18:00:00Z");
 
 type Submission = {
   id?: string;
