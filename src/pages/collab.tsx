@@ -14,7 +14,7 @@ const RING_TASKS = [
 const RING_POSITIONS = [{ angle: -90 }, { angle: 0 }, { angle: 90 }, { angle: 180 }];
 
 // ── Set your actual launch date here ─────────────────────────────────────────
-const COLLAB_LAUNCH = new Date(Date.now() + 100 * 60 * 60 * 1000);
+const COLLAB_LAUNCH = new Date("2026-05-31T13:37:00");
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Spinning elemental ring — all 4 elements always "awakened" on Coming Soon
