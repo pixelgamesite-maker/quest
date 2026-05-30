@@ -40,6 +40,9 @@ const EVM_REGEX = /^0x[a-fA-F0-9]{40}$/;
 // ── Global whitelist deadline — everyone sees the same clock ─────────────────
 const COUNTDOWN_END = new Date("2026-05-30T09:37:00");
 
+// ── Toggle this to lock/unlock the whitelist form ────────────────────────────
+const WHITELIST_CLOSED = true;
+
 type Submission = {
   id?: string;
   session_id: string;
@@ -58,7 +61,7 @@ type Submission = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CountdownBanner – 72-hour timer shown at the very top of the page
+// CountdownBanner – timer shown at the very top of the page
 // ─────────────────────────────────────────────────────────────────────────────
 function CountdownBanner() {
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0, expired: false });
@@ -105,10 +108,7 @@ function CountdownBanner() {
             <div className="flex flex-col items-center">
               <span
                 className="text-2xl font-black tabular-nums leading-none"
-                style={{
-                  color: "#f97316",
-                  textShadow: "0 0 18px rgba(249,115,22,0.6)",
-                }}
+                style={{ color: "#f97316", textShadow: "0 0 18px rgba(249,115,22,0.6)" }}
               >
                 {pad(timeLeft.hours)}
               </span>
@@ -119,10 +119,7 @@ function CountdownBanner() {
             <div className="flex flex-col items-center">
               <span
                 className="text-2xl font-black tabular-nums leading-none"
-                style={{
-                  color: "#f97316",
-                  textShadow: "0 0 18px rgba(249,115,22,0.6)",
-                }}
+                style={{ color: "#f97316", textShadow: "0 0 18px rgba(249,115,22,0.6)" }}
               >
                 {pad(timeLeft.minutes)}
               </span>
@@ -133,10 +130,7 @@ function CountdownBanner() {
             <div className="flex flex-col items-center">
               <span
                 className="text-2xl font-black tabular-nums leading-none"
-                style={{
-                  color: "#facc15",
-                  textShadow: "0 0 18px rgba(250,204,21,0.5)",
-                }}
+                style={{ color: "#facc15", textShadow: "0 0 18px rgba(250,204,21,0.5)" }}
               >
                 {pad(timeLeft.seconds)}
               </span>
@@ -200,8 +194,10 @@ function EarnityProfileCard({
               <div className="text-[8px] text-white/30 tracking-wider">WHITELIST PORTAL</div>
             </div>
           </div>
-          <div className={`px-2.5 py-1 rounded-full border text-[9px] font-bold tracking-wider ${cfg.bg} ${cfg.border}`}
-            style={{ color: cfg.color }}>
+          <div
+            className={`px-2.5 py-1 rounded-full border text-[9px] font-bold tracking-wider ${cfg.bg} ${cfg.border}`}
+            style={{ color: cfg.color }}
+          >
             {cfg.label}
           </div>
         </div>
@@ -218,8 +214,10 @@ function EarnityProfileCard({
                   </div>
                 )}
               </div>
-              <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#0a0a0f]"
-                style={{ background: cfg.color }} />
+              <div
+                className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-[#0a0a0f]"
+                style={{ background: cfg.color }}
+              />
             </div>
             <div>
               <div className="text-lg font-bold text-white tracking-tight">{username}</div>
@@ -236,8 +234,12 @@ function EarnityProfileCard({
                 </div>
                 <div className="flex items-center gap-1">
                   <CopyBtn text={wallet} />
-                  <a href={`https://etherscan.io/address/${wallet}`} target="_blank" rel="noopener noreferrer"
-                    className="p-1.5 rounded-lg hover:bg-white/10 transition-colors text-white/40 hover:text-white">
+                  <a
+                    href={`https://etherscan.io/address/${wallet}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-1.5 rounded-lg hover:bg-white/10 transition-colors text-white/40 hover:text-white"
+                  >
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
@@ -331,7 +333,7 @@ function ElementalRing4({ completedTasks }: { completedTasks: string[] }) {
                 {isDone
                   ? <img src={task.img} alt={task.element} className="w-5 h-5 object-contain"
                       style={{ filter: `drop-shadow(0 0 4px ${task.color})` }} />
-                  : <div className="text-white/20 text-[8px] font-mono">{task.element.slice(0,2)}</div>
+                  : <div className="text-white/20 text-[8px] font-mono">{task.element.slice(0, 2)}</div>
                 }
               </div>
             </div>
@@ -343,6 +345,41 @@ function ElementalRing4({ completedTasks }: { completedTasks: string[] }) {
         style={{ left: "50%", top: "50%", transform: "translate(-50%, -50%)", width: 56, height: 56,
           background: "radial-gradient(circle, rgba(255,255,255,0.06), rgba(0,0,0,0.9))" }}>
         <img src={GAME_ASSETS.seal2} alt="Seal" className="w-8 h-8 object-contain opacity-70" />
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Phase closed banner — shown above the task list when WHITELIST_CLOSED = true
+// ─────────────────────────────────────────────────────────────────────────────
+function PhaseClosedBanner() {
+  return (
+    <div className="relative overflow-hidden rounded-sm border border-orange-500/25 bg-gradient-to-br from-orange-500/[0.06] via-black to-yellow-400/[0.04] px-5 py-5 mb-5">
+      {/* top accent line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500/60 to-transparent" />
+      {/* bottom accent line */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500/20 to-transparent" />
+
+      <div className="flex items-start gap-4">
+        {/* icon column */}
+        <div className="flex-shrink-0 w-9 h-9 rounded-full border border-orange-500/30 bg-orange-500/10 flex items-center justify-center mt-0.5">
+          <span className="text-base leading-none">🜂</span>
+        </div>
+
+        {/* text column */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-[10px] font-black tracking-[0.35em] text-orange-400">PHASE I CLOSED</span>
+            <span className="text-[8px] tracking-[0.2em] text-zinc-700 border border-zinc-800 px-1.5 py-0.5 rounded-sm">UNDER REVIEW</span>
+          </div>
+          <p className="text-[11px] text-zinc-400 leading-relaxed">
+            Whitelist Phase I has come to an end. All applications are now under review.
+          </p>
+          <p className="text-[10px] text-zinc-600 mt-1 leading-relaxed">
+            Results will be announced via <a href="https://x.com/earnity_" target="_blank" rel="noreferrer" className="text-orange-400/70 hover:text-orange-400 transition-colors">@earnity_</a>. Stay tuned.
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -396,11 +433,7 @@ export default function Whitelist() {
     if (data) {
       setSubmission(data);
       setWallet(data.wallet || "");
-      setBoostDone([
-        !!data.boost_tweet1,
-        !!data.boost_tweet2,
-        !!data.boost_tweet3,
-      ]);
+      setBoostDone([!!data.boost_tweet1, !!data.boost_tweet2, !!data.boost_tweet3]);
     }
   };
 
@@ -433,6 +466,8 @@ export default function Whitelist() {
   };
 
   const handleTask = async (task: typeof TASKS[0]) => {
+    // Block all task interactions when whitelist is closed
+    if (WHITELIST_CLOSED) return;
     if (!sessionId || !isUnlocked(TASKS.indexOf(task)) || done(task.id)) return;
     await ensureSubmission();
     window.open(task.url, "_blank");
@@ -450,6 +485,7 @@ export default function Whitelist() {
   };
 
   const submitProof = async (taskId: string) => {
+    if (WHITELIST_CLOSED) return;
     if (!sessionId || !proofInputs[taskId]?.trim()) return;
     await ensureSubmission();
     setPendingTask(taskId);
@@ -504,7 +540,7 @@ export default function Whitelist() {
 
   return (
     <MainLayout>
-      {/* ── 72-hour countdown banner ───────────────────────────────────────── */}
+      {/* ── Countdown banner ───────────────────────────────────────────────── */}
       <CountdownBanner />
 
       {celebrating && (
@@ -533,22 +569,37 @@ export default function Whitelist() {
                 <span className="text-[10px] tracking-[0.3em] text-zinc-600">ELEMENTAL TASKS</span>
                 <span className="text-[10px] tracking-[0.2em] text-zinc-600">{completedCount}/4 COMPLETE</span>
               </div>
+
+              {/* ── Phase closed banner ──────────────────────────────────────── */}
+              {WHITELIST_CLOSED && <PhaseClosedBanner />}
+
               <div className="flex flex-col gap-3">
                 {TASKS.map((task, index) => {
                   const isDone = done(task.id);
                   const unlocked = isUnlocked(index);
                   const isPending = pendingTask === task.id;
-                  const showProof = unlocked && !isDone && task.needsProof;
+                  // Never show proof input when whitelist is closed
+                  const showProof = !WHITELIST_CLOSED && unlocked && !isDone && task.needsProof;
 
                   return (
-                    <div key={task.id} className="rounded-sm border transition-all duration-300 overflow-hidden"
-                      style={{ borderColor: isDone ? task.color + "44" : "#1e1e1e", background: isDone ? task.color + "08" : "#080808" }}>
+                    <div
+                      key={task.id}
+                      className="rounded-sm border transition-all duration-300 overflow-hidden"
+                      style={{
+                        borderColor: isDone ? task.color + "44" : "#1e1e1e",
+                        background: isDone ? task.color + "08" : "#080808",
+                        // Dim tasks slightly when closed and not done
+                        opacity: WHITELIST_CLOSED && !isDone ? 0.6 : 1,
+                      }}
+                    >
                       <div className="flex items-center gap-5 px-5 py-4">
-                        <div className="w-9 h-9 rounded-full flex items-center justify-center border flex-shrink-0 transition-all duration-300"
+                        <div
+                          className="w-9 h-9 rounded-full flex items-center justify-center border flex-shrink-0 transition-all duration-300"
                           style={{
                             borderColor: isDone ? task.color : unlocked ? task.color + "44" : "#1e1e1e",
                             background: isDone ? task.color + "20" : "transparent",
-                          }}>
+                          }}
+                        >
                           {isDone
                             ? <img src={task.img} alt={task.element} className="w-5 h-5 object-contain"
                                 style={{ filter: `drop-shadow(0 0 4px ${task.color})` }} />
@@ -563,31 +614,50 @@ export default function Whitelist() {
                         </div>
                         <div className="flex-shrink-0">
                           {isDone ? (
-                            <span className="text-[10px] font-bold tracking-[0.2em] border px-3 py-1.5 rounded-sm"
-                              style={{ color: task.color, borderColor: task.color + "44" }}>✓ DONE</span>
+                            <span
+                              className="text-[10px] font-bold tracking-[0.2em] border px-3 py-1.5 rounded-sm"
+                              style={{ color: task.color, borderColor: task.color + "44" }}
+                            >
+                              ✓ DONE
+                            </span>
+                          ) : WHITELIST_CLOSED ? (
+                            // ── Closed state badge ───────────────────────────
+                            <span className="text-[10px] font-bold tracking-[0.2em] border px-3 py-1.5 rounded-sm text-zinc-700 border-zinc-800/60">
+                              CLOSED
+                            </span>
                           ) : !unlocked ? (
                             <span className="text-[10px] text-zinc-800 tracking-widest px-3 py-1.5">🔒 LOCKED</span>
                           ) : (
-                            <button onClick={() => handleTask(task)} disabled={!!isPending}
+                            <button
+                              onClick={() => handleTask(task)}
+                              disabled={!!isPending}
                               className="text-[10px] font-bold tracking-[0.2em] border px-3 py-1.5 rounded-sm bg-transparent cursor-pointer transition-all"
-                              style={{ color: task.color, borderColor: task.color + "55" }}>
+                              style={{ color: task.color, borderColor: task.color + "55" }}
+                            >
                               {isPending ? "OPENING..." : task.action}
                             </button>
                           )}
                         </div>
                       </div>
+
+                      {/* Proof input — hidden when closed */}
                       {showProof && (
                         <div className="px-5 pb-4 border-t border-white/5 pt-3">
                           <div className="text-[9px] tracking-[0.3em] text-zinc-700 mb-2">PASTE YOUR {task.id.toUpperCase()} LINK</div>
                           <div className="flex gap-2">
-                            <input type="text" placeholder="https://x.com/..."
+                            <input
+                              type="text"
+                              placeholder="https://x.com/..."
                               value={proofInputs[task.id] || ""}
                               onChange={(e) => setProofInputs((p) => ({ ...p, [task.id]: e.target.value }))}
-                              className="flex-1 bg-black border border-zinc-800 text-white px-3 py-2 text-xs font-mono rounded-sm" />
-                            <button onClick={() => submitProof(task.id)}
+                              className="flex-1 bg-black border border-zinc-800 text-white px-3 py-2 text-xs font-mono rounded-sm"
+                            />
+                            <button
+                              onClick={() => submitProof(task.id)}
                               disabled={!proofInputs[task.id]?.trim() || isPending}
                               className="px-3 py-2 text-[10px] font-bold tracking-widest rounded-sm border cursor-pointer transition-all disabled:opacity-40"
-                              style={{ color: task.color, borderColor: task.color + "55", background: "transparent" }}>
+                              style={{ color: task.color, borderColor: task.color + "55", background: "transparent" }}
+                            >
                               {isPending ? "..." : "VERIFY"}
                             </button>
                           </div>
@@ -706,8 +776,10 @@ export default function Whitelist() {
             <div className="bg-zinc-950 border border-white/5 rounded-sm p-6 flex flex-col items-center">
               <ElementalRing4 completedTasks={completedTasks} />
               <div className="w-full bg-zinc-900 rounded-full h-1 mt-5 mb-2">
-                <div className="h-1 rounded-full transition-all duration-700"
-                  style={{ width: `${(completedCount / 4) * 100}%`, background: "linear-gradient(90deg, #f97316, #facc15)" }} />
+                <div
+                  className="h-1 rounded-full transition-all duration-700"
+                  style={{ width: `${(completedCount / 4) * 100}%`, background: "linear-gradient(90deg, #f97316, #facc15)" }}
+                />
               </div>
               <div className="text-[9px] tracking-widest text-zinc-700 mt-1">
                 {completedCount === 4 ? "ALL ELEMENTS AWAKENED" : `${4 - completedCount} ELEMENTS REMAINING`}
