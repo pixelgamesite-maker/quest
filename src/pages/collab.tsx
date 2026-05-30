@@ -13,11 +13,8 @@ const RING_TASKS = [
 
 const RING_POSITIONS = [{ angle: -90 }, { angle: 0 }, { angle: 90 }, { angle: 180 }];
 
-// ── Set your actual launch date here ─────────────────────────────────────────
-const COLLAB_LAUNCH = new Date("2026-05-31T13:37:00");
-
 // ─────────────────────────────────────────────────────────────────────────────
-// Spinning elemental ring — all 4 elements always "awakened" on Coming Soon
+// Spinning elemental ring — all 4 elements always "awakened"
 // ─────────────────────────────────────────────────────────────────────────────
 function ElementalRingCollab() {
   const angleRef = useRef(0);
@@ -107,60 +104,6 @@ function ElementalRingCollab() {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 100-hour countdown
-// ─────────────────────────────────────────────────────────────────────────────
-function CollabCountdown() {
-  const [t, setT] = useState({ hours: 0, minutes: 0, seconds: 0, expired: false });
-
-  useEffect(() => {
-    const calc = () => {
-      const diff = COLLAB_LAUNCH.getTime() - Date.now();
-      if (diff <= 0) { setT({ hours: 0, minutes: 0, seconds: 0, expired: true }); return; }
-      const s = Math.floor(diff / 1000);
-      setT({ hours: Math.floor(s / 3600), minutes: Math.floor((s % 3600) / 60), seconds: s % 60, expired: false });
-    };
-    calc();
-    const id = setInterval(calc, 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const pad = (n: number) => String(n).padStart(2, "0");
-
-  if (t.expired) {
-    return (
-      <div className="text-[10px] tracking-[0.4em] text-orange-400 font-mono">LAUNCHING SOON</div>
-    );
-  }
-
-  const blocks = [
-    { value: pad(t.hours),   label: "HRS",  color: "#f97316" },
-    { value: pad(t.minutes), label: "MIN",  color: "#f97316" },
-    { value: pad(t.seconds), label: "SEC",  color: "#facc15" },
-  ];
-
-  return (
-    <div className="flex items-center gap-1 font-mono">
-      {blocks.map((b, i) => (
-        <div key={b.label} className="flex items-center gap-1">
-          <div className="flex flex-col items-center">
-            <span
-              className="text-3xl font-black tabular-nums leading-none"
-              style={{ color: b.color, textShadow: `0 0 20px ${b.color}80` }}
-            >
-              {b.value}
-            </span>
-            <span className="text-[8px] tracking-[0.3em] text-zinc-600 mt-1">{b.label}</span>
-          </div>
-          {i < 2 && (
-            <span className="text-orange-500/50 text-2xl font-black mb-4 mx-0.5">:</span>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Page
 // ─────────────────────────────────────────────────────────────────────────────
 export default function Collab() {
@@ -208,13 +151,42 @@ export default function Collab() {
             <div className="flex-1 h-px bg-gradient-to-l from-transparent to-orange-500/20" />
           </div>
 
-          {/* countdown */}
-          <div className="flex flex-col items-center gap-3">
-            <span className="text-[9px] tracking-[0.4em] text-zinc-600 font-mono">OPENS IN</span>
-            <CollabCountdown />
+          {/* phase closed notice — replaces the countdown */}
+          <div className="relative overflow-hidden rounded-sm border border-orange-500/25 bg-gradient-to-br from-orange-500/[0.06] via-black to-yellow-400/[0.04] px-5 py-5 w-full max-w-xs text-left">
+            {/* top accent line */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500/60 to-transparent" />
+            {/* bottom accent line */}
+            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500/20 to-transparent" />
+
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full border border-orange-500/30 bg-orange-500/10 flex items-center justify-center mt-0.5">
+                <span className="text-sm leading-none">🜂</span>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-[10px] font-black tracking-[0.35em] text-orange-400">PHASE I CLOSED</span>
+                  <span className="text-[8px] tracking-[0.2em] text-zinc-700 border border-zinc-800 px-1.5 py-0.5 rounded-sm">UNDER REVIEW</span>
+                </div>
+                <p className="text-[11px] text-zinc-400 leading-relaxed">
+                  Whitelist Phase I has come to an end. All applications are now under review.
+                </p>
+                <p className="text-[10px] text-zinc-600 mt-1 leading-relaxed">
+                  Results will be announced via{" "}
+                  <a
+                    href="https://x.com/earnity_"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-orange-400/70 hover:text-orange-400 transition-colors"
+                  >
+                    @earnity_
+                  </a>
+                  . Stay tuned.
+                </p>
+              </div>
+            </div>
           </div>
 
-          {/* notify pill */}
+          {/* follow pill */}
           <a
             href="https://x.com/earnity_"
             target="_blank"
